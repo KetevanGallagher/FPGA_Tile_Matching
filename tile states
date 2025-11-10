@@ -1,0 +1,12 @@
+//set up each tile 10 FOR FPGA INTIAL
+reg [10:0] T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9, T_0;
+assign T_0 = 11'b00000011110;
+assign T_1 = 11'b00001111110;
+assign T_2 = 11'b00001100000;
+assign T_3 = 11'b00001100110;
+assign T_4 = 11'b00001111110;
+assign T_5 = 11'b00001100110;
+assign T_6 = 11'b00001100000;
+assign T_7 = 11'b00000011110;
+assign T_8 = 11'b00001111000;
+assign T_9 = 11'b00001111000;
