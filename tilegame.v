@@ -187,7 +187,6 @@ module stateDirections(CLOCK_50, resetn, currentMode, currentState);
 	//assign codes for the different game modes 
 	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;  
 
-
 	//an always block for what to do when in each state  
 
 	always @ (posedge CLOCK_50)  
