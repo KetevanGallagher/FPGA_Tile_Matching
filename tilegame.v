@@ -22,10 +22,10 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 endmodule
 
 
-module overallGameMode (userQuits, keytobegin, allMatched, LEDR, SW, HEX0, HEX3, HEX2, HEX4, HEX5)
+module overallGameMode (userQuits, keytobegin, allMatched, SW, HEX0)
 	input userQuits, keytobegin, allMatched;
 	input [9:0] SW;
-	output [6:0] HEX0, HEX2, HEX3, HEX4, HEX5;
+	output [6:0] HEX0
 	reg [3:0] currentMode, nextMode;  //for keeping track of what game mode we are in
 	reg [6:0] hexDisplay;
 	assign HEX0 = hexDisplay;
@@ -79,10 +79,11 @@ module overallGameMode (userQuits, keytobegin, allMatched, LEDR, SW, HEX0, HEX3,
 	
 endmodule
 
-module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5)
+module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaScore)
 
 	input reg quitInput;
 	input [9:0] SW;
+    input reg [7:0] dementiaScore;
 	output reg allMatched;
 	output [9:0] LEDR;
 	
@@ -113,6 +114,7 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5)
 				if (new)
 					nextInGame <= OneTile;
 					LEDFromTile iGM1(tileCode1, LEDR, 1'b1);
+                    hex_7seg flipT1 (tileCode1[5:1], HEX2);
 				end
 				else nextInGame <= Idle; 
 			end  
@@ -129,6 +131,7 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5)
 				if (new)
 					nextInGame <= TwoTile;
 					LEDFromTile iGM3(tileCode2, LEDR, 1'b1);
+                    hex_7seg flipT2 (tileCode2[5:1], HEX3);
 				end
 			else
 				 nextInGame <= OneTile; 
@@ -227,6 +230,10 @@ module stateDirections(CLOCK_50, resetn, currentMode, currentState);
 endmodule
 
 module getTile(SW, pastOn, tileCode, new, newOn);
+    //gets tilecode from switch
+    //past on keeps track of if tiles have been turned on before and are already matched
+    //this way we make sure we only look at new tiles.
+    //we can use this to also check if all tiles are matched
 	input [9:0] SW;
 	input [9:0] pastOn;
 	output [10:0] tileCode;
@@ -329,6 +336,7 @@ module getTile(SW, pastOn, tileCode, new, newOn);
 endmodule
 
 module LEDFromTile(code, LEDR, on);
+    //turns on corresponding LED given a tilecode
 	input [10:0] code;
 	output [9:0] LEDR;
 	//set up each tile, 10 FOR FPGA INTIAL
@@ -394,7 +402,28 @@ module LEDFromTile(code, LEDR, on);
 	end
 	
 	
+endmodule
 
+module twoSecBlink(tile1, tile2, twoseccounter); //I'm not sure exactly what you're doing here
+//do you mind if I rewrite this using my counter code from old labs? the way I have it is in a module
+    begin  
+        //do the counting up to two seconsd  up to 100 mil
+        if (twoseccounter == 27'b101111101011110000100000000) //if the counter has reached 2 seconds  
+                begin  
+                twoseccounter <= 27'b0;  
+                twosec <= ~twosec;  
+                end  
+
+        else  
+            begin   
+                twosec <= 0;  
+        counter <= counter + 1;
+        //if time not up just keep counting and leave the hexs on
+        hex_7seg flip1 (tile1[5:1], HEX3);
+        hex_7seg flip2 (tile2[5:1], HEX2);
+        end  
+    //after two seconds turn the hexs off
+	end
 endmodule
 	
 
