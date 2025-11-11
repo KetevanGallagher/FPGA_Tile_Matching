@@ -88,7 +88,7 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 	output [9:0] LEDR;
 	
 	reg [2:0] currentInGame, nextInGame;  //for keeping track of what game mode we are in
-	reg [9:0] currentOn, nextCurrentOn;
+	reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
 	
 	
 	reg [10:0] tileCode1, tileCode2;
@@ -109,8 +109,7 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 			end
 			else
 				begin
-				getTile iGM0(SW, currentOn, tileCode1, new, nextCurrentOn);
-				currentOn <= nextCurrentOn;
+				getTile iGM0(SW, currentOn, tileCode1, new, nextCurrentOn1);
 				if (new)
 					nextInGame <= OneTile;
 					LEDFromTile iGM1(tileCode1, LEDR, 1'b1);
@@ -123,36 +122,60 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 			begin 
 			//user quits
 			if (quitInput == 1) 
+            begin
 				 nextInGame <= Idle;
 				 nextMode <= Gmenu;
+            end
 			else
 				begin
-				getTile iGM2(SW, currentOn, tileCode2, new);
+				getTile iGM2(SW, nextCurrentOn1, tileCode2, new, nextCurrentOn2);
 				if (new)
 					nextInGame <= TwoTile;
 					LEDFromTile iGM3(tileCode2, LEDR, 1'b1);
                     hex_7seg flipT2 (tileCode2[5:1], HEX3);
 				end
 			else
-				 nextInGame <= OneTile; 
+				nextInGame <= OneTile; 
 			end 
 
 	  TwoTile:   
 			begin   
 	  //if user quits
 			if (userquit == 1)   
-			nextInGame <= Idle; 
+			begin
+				 nextInGame <= Idle;
+				 nextMode <= Gmenu;
+            end
+
 	  //if all are matched just go back to the default
 			else 
-			//here, check that the color codes of the two tiles are the same
-			// if so, blink and keep on
-			// if not, blink and turn off
-			// make sure to update currentOn
-			if (matched == 5)
-			nextMode <= Gendgame; 
+                begin
+                //here, check that the color codes of the two tiles are the same
+                // if so, blink and keep on
+                // if not, blink and turn off
+                // make sure to update currentOn
+                    if (tileCode1[5:1] == tileCode2[5:1])
+                        begin
+                            clock_50MHz_counter blinkGM0(CLOCK_50, quitInput, tileCode1[5:1], tileCode2[5:1], HEX2, HEX3);
+                            LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b1);
+                            LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b1);
+                        end
+                    else
+                        clock_50MHz_counter blinkGM0(CLOCK_50, quitInput, tileCode1[5:1], tileCode2[5:1], HEX2, HEX3);
+                        LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b1);
+                        LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b1);
+                        currentOn <= nextCurrentOn2;
+                end
+                if (nextCurrentOn2 == 10'b1111111111)
+                    begin
+                        nextInGame <= Idle;
+				        nextMode <= Gendgame;
+                        LEDR = 10'b000000000;
+                    end
+
 	  else 
 			nextInGame <= Idle; 
-			end 
+		end 
 
 	  default: nextInGame <= Idle;  
 
@@ -404,26 +427,30 @@ module LEDFromTile(code, LEDR, on);
 	
 endmodule
 
-module twoSecBlink(tile1, tile2, twoseccounter); //I'm not sure exactly what you're doing here
-//do you mind if I rewrite this using my counter code from old labs? the way I have it is in a module
-    begin  
-        //do the counting up to two seconsd  up to 100 mil
-        if (twoseccounter == 27'b101111101011110000100000000) //if the counter has reached 2 seconds  
-                begin  
-                twoseccounter <= 27'b0;  
-                twosec <= ~twosec;  
-                end  
-
-        else  
-            begin   
-                twosec <= 0;  
-        counter <= counter + 1;
-        //if time not up just keep counting and leave the hexs on
-        hex_7seg flip1 (tile1[5:1], HEX3);
-        hex_7seg flip2 (tile2[5:1], HEX2);
-        end  
-    //after two seconds turn the hexs off
+module clock_50MHz_counter(Clock, clear, tile1, tile2, HEX2, HEX3);
+	input Clock, clear;
+	reg [26:0]counter;
+	always@(posedge Clock)
+	begin
+		if(!clear)
+			begin
+			counter <= 27'd99999998;
+			end
+		else
+			begin
+				if (counter == 0)
+					begin
+					counter <= 27'd99999998;
+					hex_7seg blinkT1 (tileCode1[5:1], HEX2);
+                    hex_7seg blinkT2 (tileCode2[5:1], HEX3);
+					end
+				else
+					begin
+					counter <= counter -1;
+					end
+			end
 	end
+
 endmodule
 	
 
@@ -448,8 +475,8 @@ module hex_7seg(C, h);
 			4'hB: h = 7'b0000011;
 			4'hC: h = 7'b1000110;
 			4'hD: h = 7'b0100001;
-			4'hE: h = 7'b0000110;
-			4'hF: h = 7'b0001110;
+			//4'hE: h = 7'b0000110;
+			//4'hF: h = 7'b0001110;
 			default: h = 7'b1111111;
 	  endcase
 	end
