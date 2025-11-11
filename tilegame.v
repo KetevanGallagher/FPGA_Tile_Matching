@@ -1,303 +1,503 @@
-module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0);
-input [9:0] SW;
-input [3:0] KEY;
-input CLOCK_50;
-output [9:0] LEDR;
+module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+	input [9:0] SW;
+	input [3:0] KEY;
+	input CLOCK_50;
+	output [9:0] LEDR;
+	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
-//signals here
-reg userquit, keytobegin; //buttons for control
-reg [3:0] allMatched; //counter for if all tiles matched ONLY NEEDS TO BE 4 BITS AS WHEN 2 MATCH INCREMENET BY 1
-reg [1:0] switchesOn; //how many switches are on at a time
-reg [3:0] currentMode, nextMode;  //for keeping track of what game mode we are in
-reg [2:0] currentInGame, nextInGame;  //for keeping track of what game mode we are in
-reg [1:0] currentTileState, nextTileState;  //for keeping track of what game mode we are in
-reg [7:0] dementiaScore; //counts how many moves the user made
-reg twosec; //for counting two seconds and flipping back over after 2 if no match
+	//signals here
+	wire userquit, keytobegin; //buttons for control
+	reg [4:0] allMatched; //counter for if all tiles matched
+	//reg [1:0] switchesOn; //how many switches are on at a time
+	reg [7:0] dementiaScore; //counts how many moves the user made
 
-assign userquit = KEY[0];
-assign keytobegin = KEY[1];
+	assign userquit = KEY[0];
+	assign keytobegin = KEY[1];
 
-//set up each tile 10 FOR FPGA INTIAL
-reg [10:0] T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9, T_0;
-assign T_0 = 11'b00000011110;
-assign T_1 = 11'b00001111110;
-assign T_2 = 11'b00001100000;
-assign T_3 = 11'b00001100110;
-assign T_4 = 11'b00001111110;
-assign T_5 = 11'b00001100110;
-assign T_6 = 11'b00001100000;
-assign T_7 = 11'b00000011110;
-assign T_8 = 11'b00001111000;
-assign T_9 = 11'b00001111000;
+	
 
-//code for holding the two selected tiles
-reg [11:0] tile1, tile2;
+	//assign codes for the ingame fsm
 
-//assign codes for the different game modes 
-localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;  
-
-//assign codes for the ingame fsm
-localparam Idle = 3'b000; OneTile = 3'b001, TwoTile = 3'b011;
-
-//assign codes for the tile state fsm DO WE NEED THIS????
-localparam down = 2'b00, flipup = 2'b01, matched = 2'b11;
-
-//an always block for when to change modes
-always @ (*)  
-begin  
-case (currentMode)  
-    Gmenu:   
-        begin   
-        if (keytobegin == 1)   
-            nextMode <= Gingame;   
-        else   
-            nextMode <= Gmenu;   
-        end  
-
-    Gingame: 
-        begin 
-        if (allMatched == 4'b1000) 
-            nextMode <= Gendgame; 
-        else if (userquit == 1) 
-            nextMode <= Gmenu; 
-        else
-            nextMode <= Gingame; 
-        end 
-
-    Gendgame:   
-        begin   
-        if (userquit == 1)   
-            nextMode <= Gmenu; 
-        else   
-            nextMode <= Gendgame;   
-        end  
-
-    //not touched yet,  to be implemented later if time 
-    Gleaderboard: nextMode <= Gmenu;  
-
-    default: nextMode <= Gmenu;  
-
-endcase  
-end  
-
-//an always block for when to change in game modes
-always @ (*)  
-begin  
-case (currentInGame)  
-    Idle:   
-        begin   
-	//user quits
-        if (userquit == 1)   
-            nextInGame <= Idle;   
-        else if (switchesOn == 2'b01)
-            nextInGame <= OneTile;   
-        end  
-
-    OneTile: 
-        begin 
-	//user quits
-        if (userquit == 1) 
-            nextInGame <= Idle; 
-        else if (switchesOn == 2'b10) 
-            nextInGame <= TwoTiles; 
-        else
-            nextInGame <= OneTile; 
-        end 
-
-    TwoTile:   
-        begin   
-	//if user quits
-        if (userquit == 1)   
-		nextInGame <= Idle; 
-	//if all are matched just go back to the default
-        else if (allMatched == 4'b0101)
-		nextInGame <= Idle;  
-	else 
-		nextInGame <= Idle; 
-        end 
-
-    default: nextInGame <= Idle;  
-
-endcase  
-end  
-
-  
-
-//an always block that updates states as often as possible  
-always @ (posedge CLOCK_50)  
-begin  
-if (resetn == 1)  
-	currentMode <= Gmenu;
-	currentInGame <= Gidle
-
-else  
-	begin
-	currentMode <= nextMode;  
-	if (currentMode == Gingame) 
-		currentInGame <= nextInGame;
-		//potentially add the tile fsm here too
-	end
-end  
-
-
-//an always block for what to do when in each mode 
-always @ (posedge CLOCK_50)  
-begin  
-
-if (resetn == 1)  
-	begin  
-	//reset all variables here
-	allMatched <= 4'b0000;
-	tilesSelected <= 2'b00;
-	dementiaScore <= 8'b00000000;
-	end  
-
-else  
-    begin  
-    if (currentMode == Gmenu) //start menu  
-        begin  
-       //display necessary things on the vga
-	//change the game mode hex?
-	hex_7seg mode (4'b0001, HEX0)
-	allMatched <= 4'b0000;
-	tilesSelected <= 2'b00;
-	dementiaScore <= 8'b00000000;
-        end  
-
-    if (currentMode == Gingame) //do the cases here to set up the thing properly  
-        begin  
-	//do vga display stuff
-	//change the game mode hex?
-	hex_7seg mode (4'b0010, HEX0)
-        end  
-
-    if (currentMode == Gendgame) //run a clock in here that counts to 0.5 seconds from the megaheartz  
-        begin  
-        //stuff on vga
-	//change the game mode hex?
-	hex_7seg mode (4'b0011, HEX0)
-	//display the total score
-	hex_7seg score1 (dementiaScore[3:0], HEX4)
-	hex_7seg score2 (dementiaScore[7:4], HEX5)
-	end  
-
-    if (currentMode == Gleaderboard)
-	begin  
-	//implement later if time
-	end  
-
-end //for the big else  
-end //for the always block 
-
-
-
-
-
-
-//an always block for what to do when in each state  
-always @ (posedge CLOCK_50)  
-begin  
-
-if (resetn == 1)  
-    begin  
-    //reset all variables here
-    end  
-
-else  
-    begin  
-    if (currentInGame == Idle) //start menu  
-        begin  
-       //display necessary things on the vga
-
-	//display score
-	hex_7seg score1 (dementiaScore[3:0], HEX4)
-	hex_7seg score2 (dementiaScore[7:4], HEX5)
-
-	//loads in the right first tile once that is pressed
-	if (SW[0] ^ SW[1] ^ SW[3] ^ SW[4] ^ SW[5] ^ SW[6] ^ SW[7] ^ SW[8] ^ SW[9])
-		begin
-		
-		if (SW[9:0] == 10'b0000000001)
-			tile1 <= T_0;
-		else if (SW[9:0] == 10'b0000000010)
-			tile1 <= T_1;
-		else if (SW[9:0] == 10'b0000000100)
-			tile1 <= T_2;
-		else if (SW[9:0] == 10'b0000001000)
-			tile1 <= T_3;
-		else if (SW[9:0] == 10'b0000010000)
-			tile1 <= T_4;
-		else if (SW[9:0] == 10'b0000100000)
-			tile1 <= T_5;
-		else if (SW[9:0] == 10'b0001000000)
-			tile1 <= T_6;
-		else if (SW[9:0] == 10'b0010000000)
-			tile1 <= T_7;
-		else if (SW[9:0] == 10'b0100000000)
-			tile1 <= T_8;
-		else if (SW[9:0] == 10'b1000000000)
-			tile1 <= T_9;
-		switchesOn <= switchesOn + 1;
-		end
-        end  
-
-    if (currentInGame == OneTile) //do the cases here to set up the thing properly  
-        begin  
-	//VGA STUFF
-	//if another switch is flicked, increment the swtichesOn
-	//display this tile
-        end  
-
-    if (currentInGame == TwoTile) //run a clock in here that counts to 0.5 seconds from the megaheartz  
-        begin  
-	if (tile1[6:1] == tile2[6:1])
-        //do the counting up to two seconds
-  	begin  
-        	//do the counting up to two seconsd  
-        	if (counter == 26'b01011111010111100001000000) //if the counter has reached 2 seconds  
-            	begin  
-            	counter <= 26'b0;  
-            	halfsec <= ~halfsec;  
-            	end  
-
-        	else  
-           	begin   
-            	halfsec <= 0;  
-		counter <= counter + 1;
-		end  
-	//after two seconds turn the hexs off
-	end  
-
-end //for the big else  
-end //for the always block 
 
 endmodule
 
-//include the hexdecder module for display
-module hex_7seg(C, h); 
-    input [3:0] C; 
-    output reg [6:0] h; 
+module overallGameMode (userQuits, keytobegin, gameOver, SW, HEX0);
+	input userQuits, keytobegin, gameOver;
+	input [9:0] SW;
+	output [6:0] HEX0;
+	reg [3:0] currentMode, nextMode;  //for keeping track of what game mode we are in
+	reg [6:0] hexDisplay;
+	assign HEX0 = hexDisplay;
 
-    always @(*)  
-    begin 
-      case(C) 
-            4'h0: h = 7'b1000000; 
-            4'h1: h = 7'b1111001; 
-            4'h2: h = 7'b0100100; 
-            4'h3: h = 7'b0110000; 
-            4'h4: h = 7'b0011001; 
-            4'h5: h = 7'b0010010; 
-            4'h6: h = 7'b0000010; 
-            4'h7: h = 7'b1111000; 
-            4'h8: h = 7'b0000000; 
-            4'h9: h = 7'b0010000; 
-            4'hA: h = 7'b0001000; 
-            4'hB: h = 7'b0000011; 
-            4'hC: h = 7'b1000110; 
-            4'hD: h = 7'b0100001; 
-            4'hE: h = 7'b0000110; 
-            4'hF: h = 7'b0001110; 
-            default: h = 7'b1111111; 
-      endcase 
-    end 
-    endmodule 
+	//assign codes for the different game modes 
+	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;  
+
+
+
+	//an always block for when to change modes
+	always @ (*)  
+	begin  
+	case (currentMode)  
+		Gmenu:   
+			begin
+				hex_7seg oGM0(4'b0000, hexDisplay);
+				if (keytobegin == 1)   
+					 nextMode <= Gingame;
+				else   
+					 nextMode <= Gmenu;   
+			end  
+
+		Gingame:
+			begin
+				hex_7seg oGM0(4'b0001, hexDisplay);
+				
+				if (gameOver == 1)
+					 nextMode <= Gendgame; 
+				else if (userQuits == 1) 
+					 nextMode <= Gmenu;
+				else
+					 nextMode <= Gingame; 
+			end 
+
+		Gendgame:
+			begin   
+				hex_7seg oGM0(4'b0010, hexDisplay);
+				if (userQuits == 1)   
+					 nextMode <= Gmenu; 
+				else   
+					 nextMode <= Gendgame;   
+			end  
+
+	  //not touched yet,  to be implemented later if time 
+	  //Gleaderboard: nextMode <= Gmenu;  
+
+		default: nextMode <= Gmenu;  
+	endcase  
+	end  
+	
+endmodule
+
+module inGameMode(quitInput, dementiaScore, new, LEDR, HEX2, HEX3, HEX4, HEX5, gameOver, goToMenu);
+	input quitInput;
+	input [9:0] SW;
+	input [7:0] dementiaScore;
+	input new;
+	output [9:0] LEDR;
+	output [6:0] HEX2, HEX3, HEX4, HEX5;
+	output gameOver;
+	output goToMenu;
+	
+	reg [2:0] currentInGame, nextInGame;  //for keeping track of what game mode we are in
+	reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
+	
+	
+	reg [10:0] tileCode1, tileCode2;
+	localparam Idle = 3'b000, OneTile = 3'b001, TwoTile = 3'b011;
+
+
+	//an always block for when to change in game modes
+	always @ (*)  
+	begin  
+	case (currentInGame)  
+		Idle:   
+			begin   
+	  		//user quits
+			if (quitInput == 1) 
+				 nextInGame <= Idle;
+			else
+				begin
+				getTile iGM0(SW, currentOn, tileCode1, new, nextCurrentOn1);
+				if (new)
+					begin
+					nextInGame <= OneTile;
+					LEDFromTile iGM1(tileCode1, LEDR, 1'b1);
+                    			hex_7seg flipT1 (tileCode1[5:1], HEX2);
+					end
+				else
+					begin
+					nextInGame <= Idle;
+            				gameOver <= 1'b0; 
+					end
+				end  
+
+		OneTile: 
+			begin 
+			//user quits
+			if (quitInput == 1) 
+				 nextInGame <= Idle;
+			else
+				begin
+				getTile iGM2(SW, nextCurrentOn1, tileCode2, new, nextCurrentOn2);
+				if (new)
+					begin
+					nextInGame <= TwoTile;
+					LEDFromTile iGM3(tileCode2, LEDR, 1'b1);
+                    			hex_7seg flipT2 (tileCode2[5:1], HEX3);
+					end
+				else
+					begin
+					nextInGame <= OneTile;
+            				ameOver <= 1'b0;
+					end
+				end 
+			end
+
+		TwoTile:   
+			begin 
+
+	  		//if user quits
+			if (userquit == 1)   
+				nextInGame <= Idle;
+			//if all are matched just go back to the default
+			else 
+				begin
+				//here, check that the color codes of the two tiles are the same
+				// if so, blink and keep on
+				// if not, blink and turn off
+				// make sure to update currentOn
+				if (tileCode1[5:1] == tileCode2[5:1])
+					begin
+					clock_50MHz_2counter blinkGM0(CLOCK_50, quitInput, tileCode1[5:1], tileCode2[5:1], HEX2, HEX3);
+					LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b1);
+					LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b1);
+					end
+				else
+					begin
+					clock_50MHz_2counter blinkGM0(CLOCK_50, quitInput, tileCode1[5:1], tileCode2[5:1], HEX2, HEX3);
+					LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b0);
+					LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b0);
+					currentOn <= nextCurrentOn2;
+					end
+
+				if (nextCurrentOn2 == 10'b1111111111)
+					begin
+					nextInGame <= Idle;
+					gameOver <= 1'b1;
+					LEDR <= 10'b000000000;
+					end
+
+				else 
+					begin
+					nextInGame <= Idle; 
+					gameOver <= 1'b0;
+					end
+				end 
+
+		default: nextInGame <= Idle;  
+
+	endcase  
+	end  
+
+endmodule
+
+
+
+module getTile(SW, pastOn, tileCode, new, newOn);
+    //gets tilecode from switch
+    //past on keeps track of if tiles have been turned on before and are already matched
+    //this way we make sure we only look at new tiles.
+    //we can use this to also check if all tiles are matched
+	input [9:0] SW;
+	input [9:0] pastOn;
+	output reg [10:0] tileCode;
+	output reg new;
+	output reg [9:0] newOn;
+	//set up each tile, 10 FOR FPGA INTIAL
+	wire [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9; 
+	//2-row, 2-col, 6-color, 1-flipped
+	assign T_0 = 11'b00000000010;
+	assign T_1 = 11'b00000000100;
+	assign T_2 = 11'b00000000110;
+	assign T_3 = 11'b00000001000;
+	assign T_4 = 11'b00000000100;
+	assign T_5 = 11'b00000001000;
+	assign T_6 = 11'b00000000110;
+	assign T_7 = 11'b00000000010;
+	assign T_8 = 11'b00000001010;
+	assign T_9 = 11'b00000001010;
+	
+	//can we pass this in as a 0 instead? why does it have to be assign within the module?
+	//is causing errors because needs to be reg for always block but not reg for regular assignment
+	//assign new = 1'b0;
+	
+	always @ (*)  
+		begin  
+			if (SW[0] && !pastOn[0])
+				begin
+					tileCode <= T_0;
+					newOn <= pastOn;
+					newOn[0] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[1] && !pastOn[1])
+				begin
+					tileCode <= T_1;
+					newOn <= pastOn;
+					newOn[1] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[2] && !pastOn[2])
+				begin
+					tileCode <= T_2;
+					newOn <= pastOn;
+					newOn[2] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[3] && !pastOn[3])
+				begin
+					tileCode <= T_3;
+					newOn <= pastOn;
+					newOn[3] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[4] && !pastOn[4])
+				begin
+					tileCode <= T_4;
+					newOn <= pastOn;
+					newOn[4] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[5] && !pastOn[5])
+				begin
+					tileCode <= T_5;
+					newOn <= pastOn;
+					newOn[5] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[6] && !pastOn[6])
+				begin
+					tileCode <= T_6;
+					newOn <= pastOn;
+					newOn[6] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[7] && !pastOn[7])
+				begin
+					tileCode <= T_7;
+					newOn <= pastOn;
+					newOn[7] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[8] && !pastOn[8])
+				begin
+					tileCode <= T_8;
+					newOn <= pastOn;
+					newOn[8] <= 1'b1;
+					new <= 1'b1;
+				end
+			else if (SW[9] && !pastOn[9])
+				begin
+					tileCode <= T_9;
+					newOn <= pastOn;
+					newOn[9] <= 1'b1;
+					new <= 1'b1;
+				end
+			else
+				newOn <= pastOn;
+			
+	end
+	  
+	  
+endmodule
+
+
+module LEDFromTile(code, on, LEDR);
+    //turns on corresponding LED given a tilecode
+	input [10:0] code;
+	input on;
+	output reg [9:0] LEDR;
+	//set up each tile, 10 FOR FPGA INTIAL
+	wire [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9; 
+	//2-row, 2-col, 6-color, 1-flipped
+	assign T_0 = 11'b00000000010;
+	assign T_1 = 11'b00000000100;
+	assign T_2 = 11'b00000000110;
+	assign T_3 = 11'b00000001000;
+	assign T_4 = 11'b00000000100;
+	assign T_5 = 11'b00000001000;
+	assign T_6 = 11'b00000000110;
+	assign T_7 = 11'b00000000010;
+	assign T_8 = 11'b00000001010;
+	assign T_9 = 11'b00000001010;
+	
+	always @(*) 
+	begin
+	  case(code)
+			T_0: begin 
+				if (on) LEDR[0] <= 1'b1; 
+				else LEDR[0] <= 1'b0;
+			end
+			T_1: begin 
+				if (on) LEDR[1] <= 1'b1; 
+				else LEDR[1] <= 1'b0;
+			end
+			T_2: begin 
+				if (on) LEDR[2] <= 1'b1; 
+				else LEDR[2] <= 1'b0;
+			end
+			T_3: begin 
+				if (on) LEDR[3] <= 1'b1; 
+				else LEDR[3] <= 1'b0;
+			end
+			T_4: begin 
+				if (on) LEDR[4] <= 1'b1; 
+				else LEDR[4] <= 1'b0;
+			end
+			T_5: begin 
+				if (on) LEDR[5] <= 1'b1; 
+				else LEDR[5] <= 1'b0;
+			end
+			T_6: begin 
+				if (on) LEDR[6] <= 1'b1; 
+				else LEDR[6] <= 1'b0;
+			end
+			T_7: begin 
+				if (on) LEDR[7] <= 1'b1; 
+				else LEDR[7] <= 1'b0;
+			end
+			T_8: begin 
+				if (on) LEDR[8] <= 1'b1; 
+				else LEDR[8] <= 1'b0;
+			end
+			T_9: begin 
+				if (on) LEDR[9] <= 1'b1; 
+				else LEDR[9] <= 1'b0;
+			end
+			
+			
+	  endcase
+	end
+	
+	
+endmodule
+
+
+
+module updateState(resetn, CLOCK_50, currentMode, currentInGame, nextMode, nextInGame);
+	//assign codes for the different game modes 
+	input resetn, CLOCK_50;
+	input [3:0] currentMode, nextMode;
+	input [2:0] currentInGame, nextInGame;
+	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;  
+	localparam Idle = 3'b000, OneTile = 3'b001, TwoTile = 3'b011;
+
+
+	//an always block that updates states as often as possible  
+	always @ (posedge CLOCK_50)  
+	begin  
+	if (resetn == 0)
+	  currentMode <= Gmenu;
+	  currentInGame <= Gidle;
+
+	else  
+	  begin
+	  currentMode <= nextMode;  
+	  if (currentMode == Gingame) 
+			currentInGame <= nextInGame;
+	  end
+	end 
+	
+endmodule
+
+
+
+/*
+module stateDirections(CLOCK_50, resetn, currentMode, currentState);
+	//assign codes for the different game modes 
+	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;  
+
+	//an always block for what to do when in each state  
+
+	always @ (posedge CLOCK_50)  
+	begin  
+
+	if (resetn == 0)  
+	  begin  
+	  //reset all variables here
+	  end  
+
+	else  
+	  begin  
+	  if (currentMode == Gmenu) //start menu  
+			begin  
+	  //display necessary things on the vga
+	  allMatched <= 0;
+	  
+			end  
+
+	  if (currentState == Gingame) //do the cases here to set up the thing properly  
+			begin  
+	  //include all the ingame fsm stuff hereeeeee
+			end  
+
+	  if (currentState == Gendgame) //run a clock in here that counts to 0.5 seconds from the megaheartz  
+			begin  
+			//do the counting up to a half second
+	  end  
+
+	  if (currentState == Gleaderboard)
+	  begin  
+	  //implement later if time
+	  end  
+
+	end //for the big else  
+	end //for the always block 
+
+endmodule
+*/
+
+
+module clock_50MHz_2counter(Clock, clear, tile1, tile2, HEX2, HEX3);
+	input Clock, clear;
+	reg [26:0] counter;
+	always @ (posedge Clock)
+	begin
+		if (!clear)
+			begin
+			counter <= 27'd99999998;
+			end
+		else
+			begin
+			if (counter == 0)
+				begin
+				counter <= 27'd99999998;
+				hex_7seg blinkT1 (tileCode1[5:1], HEX2);
+                    		hex_7seg blinkT2 (tileCode2[5:1], HEX3);
+				end
+			else
+				begin
+				counter <= counter -1;
+				end
+			end
+	end
+
+endmodule
+	
+
+module hex_7seg(C, h);
+	input [3:0] C;
+	output reg [6:0] h;
+
+	always @(*) 
+	begin
+		case(C)
+			4'h0: h = 7'b1000000;
+			4'h1: h = 7'b1111001;
+			4'h2: h = 7'b0100100;
+			4'h3: h = 7'b0110000;
+			4'h4: h = 7'b0011001;
+			4'h5: h = 7'b0010010;
+			4'h6: h = 7'b0000010;
+			4'h7: h = 7'b1111000;
+			4'h8: h = 7'b0000000;
+			4'h9: h = 7'b0010000;
+			4'hA: h = 7'b0001000;
+			4'hB: h = 7'b0000011;
+			4'hC: h = 7'b1000110;
+			4'hD: h = 7'b0100001;
+			4'hE: h = 7'b0000110;
+			4'hF: h = 7'b0001110;
+			default: h = 7'b1111111;
+		endcase
+	end
+endmodule
