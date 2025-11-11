@@ -79,13 +79,15 @@ module overallGameMode (userQuits, keytobegin, allMatched, SW, HEX0)
 	
 endmodule
 
-module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaScore)
+module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaScore, gameOver, goToMenu)
 
 	input reg quitInput;
 	input [9:0] SW;
     input reg [7:0] dementiaScore;
 	output reg allMatched;
 	output [9:0] LEDR;
+    output gameOver;
+    output goToMenu;
 	
 	reg [2:0] currentInGame, nextInGame;  //for keeping track of what game mode we are in
 	reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
@@ -105,7 +107,6 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 			if (quitInput == 1) 
 			begin
 				 nextInGame <= Idle;
-				 nextMode <= Gmenu;
 			end
 			else
 				begin
@@ -115,7 +116,8 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 					LEDFromTile iGM1(tileCode1, LEDR, 1'b1);
                     hex_7seg flipT1 (tileCode1[5:1], HEX2);
 				end
-				else nextInGame <= Idle; 
+				else nextInGame <= Idle;
+            gameOver <= 1'b0; 
 			end  
 
 	  OneTile: 
@@ -124,7 +126,6 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
 			if (quitInput == 1) 
             begin
 				 nextInGame <= Idle;
-				 nextMode <= Gmenu;
             end
 			else
 				begin
@@ -135,16 +136,17 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
                     hex_7seg flipT2 (tileCode2[5:1], HEX3);
 				end
 			else
-				nextInGame <= OneTile; 
+				nextInGame <= OneTile;
+            gameOver <= 1'b0;
 			end 
 
 	  TwoTile:   
-			begin   
+			begin 
+
 	  //if user quits
 			if (userquit == 1)   
 			begin
-				 nextInGame <= Idle;
-				 nextMode <= Gmenu;
+				nextInGame <= Idle;
             end
 
 	  //if all are matched just go back to the default
@@ -162,19 +164,20 @@ module inGameMode(quitInput, allMatched, LEDR, HEX2, HEX3, HEX4, HEX5, dementiaS
                         end
                     else
                         clock_50MHz_counter blinkGM0(CLOCK_50, quitInput, tileCode1[5:1], tileCode2[5:1], HEX2, HEX3);
-                        LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b1);
-                        LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b1);
+                        LEDFromTile blinkT11(tileCode1[5:1], LEDR, 1'b0);
+                        LEDFromTile blinkT21(tileCode2[5:1], LEDR, 1'b0);
                         currentOn <= nextCurrentOn2;
                 end
                 if (nextCurrentOn2 == 10'b1111111111)
                     begin
                         nextInGame <= Idle;
-				        nextMode <= Gendgame;
-                        LEDR = 10'b000000000;
+				        gameOver <= 1'b1;
+                        LEDR <= 10'b000000000;
                     end
 
 	  else 
 			nextInGame <= Idle; 
+    gameOver <= 1'b0;
 		end 
 
 	  default: nextInGame <= Idle;  
@@ -261,7 +264,7 @@ module getTile(SW, pastOn, tileCode, new, newOn);
 	input [9:0] pastOn;
 	output [10:0] tileCode;
 	output reg new;
-	output reg newOn;
+	output reg [9:0] newOn;
 	//set up each tile, 10 FOR FPGA INTIAL
 	reg [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9; 
 	//2-row, 2-col, 6-color, 1-flipped
