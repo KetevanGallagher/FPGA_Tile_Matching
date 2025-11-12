@@ -375,7 +375,8 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 				begin
 				new <= 1'b0;
 
-        			if (counter2s == 26'b01011111010111100001000000) //if the counter has reached 2 seconds  
+        			//if (counter2s == 26'b01011111010111100001000000) //0b101111101011110000100000000if the counter has reached 2 seconds  
+        			if (counter2s == 26'b00000000000000000000001010) //if the counter has reached 2 seconds  
             				begin  
             				counter2s <= 26'b0;  
             				twosec <= ~twosec;  
