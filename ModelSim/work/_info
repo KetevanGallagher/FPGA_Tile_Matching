@@ -1,0 +1,90 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/intelFPGA_lite/18.1/FinalProject/ModelSim
+vhex_7seg
+Z1 !s110 1762976575
+!i10b 1
+!s100 8Y]Gn2;W;IIkXFA0bzYmU3
+I4S6ORRQj0Ik:4iCAU`I5M0
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+Z3 w1762975201
+Z4 8../tilegame.v
+Z5 F../tilegame.v
+L0 458
+Z6 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z7 !s108 1762976574.000000
+Z8 !s107 ../tilegame.v|
+Z9 !s90 -reportprogress|300|../tilegame.v|
+!i113 1
+Z10 tCvgOpt 0
+vtb
+!s110 1762976213
+!i10b 1
+!s100 SRbFflUNDfGE1V4>H^SNd2
+I2_7H;f4BWS:G9dIhh8<j22
+R2
+R0
+w1762976200
+8../tb/tb.v
+F../tb/tb.v
+L0 9
+R6
+r1
+!s85 0
+31
+!s108 1762976213.000000
+!s107 ../tb/tb.v|
+!s90 -reportprogress|300|../tb/tb.v|
+!i113 1
+R10
+vtestbench
+R1
+!i10b 1
+!s100 znzV_2]?>Cfan[kG3AU>P3
+IYDFOz@1g_P^I9eLMW56Sl3
+R2
+R0
+w1762975512
+8testbench.v
+Ftestbench.v
+L0 3
+R6
+r1
+!s85 0
+31
+!s108 1762976575.000000
+!s107 testbench.v|
+!s90 -reportprogress|300|testbench.v|
+!i113 1
+R10
+vtilegame
+R1
+!i10b 1
+!s100 3:L]^;M^nQ7_klfcf3LnI2
+I6IH7MZSNQlD0@6]`jekB22
+R2
+R0
+R3
+R4
+R5
+L0 1
+R6
+r1
+!s85 0
+31
+R7
+R8
+R9
+!i113 1
+R10
