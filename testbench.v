@@ -8,6 +8,7 @@ module testbench ( );
     reg [3:0] KEY;
     reg CLOCK_50;
     wire [9:0] LEDR;
+    wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
 	initial begin
         CLOCK_50 <= 1'b0;
@@ -28,13 +29,14 @@ module testbench ( );
     // 25M cycles. The setup below produces the Morse code for A (.-) followed
     // by the Morse code for B (-...).
 	initial begin
-        SW <= 3'b000; KEY[1] = 1; // not pressed;
-        #20 KEY[1] <= 0; // pressed
-        #10 KEY[1] <= 1; // not pressed
-        #190 SW <= 3'b001;
-        #10 KEY[1] <= 0; // pressed
-        #10 KEY[1] <= 1; // not pressed
+        SW <= 9'b0; KEY[1] = 1; KEY[0] = 1;// not pressed;
+        #10 KEY[1] <= 0; KEY[0] <= 1;// pressed to eswitch game mode
+        #10 KEY[1] <= 0; KEY[0] <= 0; //pressed reset
+        #10 KEY[1] <= [1]; //started game again
+        #10 SW <= 9'b000000001;
+        #20 SW <= 9'b000000101;
+        #30 KEY[0] <= 0; // not pressed
 	end // initial
-	part3 U1 (SW, CLOCK_50, KEY, LEDR);
+	tilegame U1 (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
 endmodule
