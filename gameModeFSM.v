@@ -5,6 +5,8 @@ module gamemodeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	output ingameOn;
 	output [6:0] hex0holder;
 
+	reg [3:0] currentMode, nextMode; //what mode in
+
 	//signals here
 	//assign codes for the ingame fsm
 	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;
