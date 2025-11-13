@@ -1,4 +1,4 @@
-module (userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+module FPGAdisplay(userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 input userquit, ingameOn, gameOver;
 input [3:0] hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr;
 input [9:0] ledrhldr;
@@ -9,23 +9,23 @@ output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 //every hex light
 hex_7seg moderun (hex0hldr, HEX0);
 
-always @ (*)
-	begin
-	if (ingame == 0 && gameOver == 0)
-		begin
-		ledrhldr <= 10'b0;
-		hex2hldr <= 4'b1111;
-		hex3hldr <= 4'b1111;
-		hex4hldr <= 4'b1111;
-		hex5hldr <= 4'b1111;
-		end
-	else if (ingame == 0 && gameOver == 1)
-		begin
-		hex2hldr <= 4'b1111;
-		hex3hldr <= 4'b1111;
-		end
+// always @ (*)
+// 	begin
+// 	if (ingame == 0 && gameOver == 0)
+// 		begin
+// 		ledrhldr <= 10'b0;
+// 		hex2hldr <= 4'b1111;
+// 		hex3hldr <= 4'b1111;
+// 		hex4hldr <= 4'b1111;
+// 		hex5hldr <= 4'b1111;
+// 		end
+// 	else if (ingame == 0 && gameOver == 1)
+// 		begin
+// 		hex2hldr <= 4'b1111;
+// 		hex3hldr <= 4'b1111;
+// 		end
 
-	end
+// 	end
 
 hex_7seg game2 (hex2hldr, HEX2);
 hex_7seg game3 (hex3hldr, HEX3);

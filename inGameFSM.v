@@ -1,19 +1,21 @@
-module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, HEX3hldr, HEX4hldr, HEX5hldr, gameOver);
-    input CLOCK_50, inGameOn, userquit, selectSW;
+module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver);
+    input CLOCK_50, inGameOn, userquit, select1, select2;
     input [9:0] SW;
 
-    output reg [9:0] LEDhldr;
-    output reg [6:0] HEX2hldr, HEX3hldr, HEX4hldr, HEX5hldr;
-    output reg gameOver, continueToIdle;
+    output reg [9:0] ledrhldr;
+    output reg [6:0] hex2hldr, hex3hldr, hex4hldr, hex5hldr;
+    output reg gameOver;
 
-    reg twosec, new;
-    reg dementiaScore[7:0];
+    reg twosec, newSW, continueToGameOver, continueToIdle;
+    reg [7:0] dementiaScore;
     reg [2:0] currentInGame, nextInGame; //what state of the game
+	 reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
+	 reg [10:0] tileCode1, tileCode2;
 
     localparam Idle = 3'b000, OneTile = 3'b001, TwoTile = 3'b011, OffGameOver = 3'b100, NotInGame = 3'b101;
     
     //set up each tile, 10 FOR FPGA INTIAL
-	wire [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_8, T_9; 
+	wire [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_7, T_8, T_9; 
 	//2-row, 2-col, 6-color, 1-flipped
 	assign T_0 = 11'b00000000010;
 	assign T_1 = 11'b00000000100;
@@ -44,7 +46,7 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
                     nextInGame <= NotInGame;
                 else
                     begin
-                    if (new)
+                    if (newSW)
                         nextInGame <= OneTile;
                     else
                         nextInGame <= Idle;
@@ -54,14 +56,14 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
             OneTile: 
                 begin 
                 //user quits
-                if (userquit == || !inGameOn) 
+                if (userquit == 1 || !inGameOn) 
                     nextInGame <= NotInGame;
                 else
                     begin
-                    if (new)
-                        nextInGame <= TwoTile;
-                    else
-                        nextInGame <= OneTile;
+							  if (newSW)
+									nextInGame <= TwoTile;
+							  else
+									nextInGame <= OneTile;
                     end 
                 end
 
@@ -101,7 +103,6 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
         case (currentInGame)
             NotInGame:
                 begin
-                    hex0hldr <= 4'b0000;
                     hex2hldr <= 4'b1111;
                     hex3hldr <= 4'b1111;
                     hex4hldr <= 4'b1111;
@@ -110,7 +111,7 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
                     nextCurrentOn1 <= 10'b0000000000;
                     nextCurrentOn2 <= 10'b0000000000;
                     dementiaScore <= 8'b00000000;
-                    new <= 0;
+                    newSW <= 0;
                     tileCode1 <= 11'b00000000000;
                     tileCode2 <= 11'b00000000000;
                     gameOver <= 1'b0;
@@ -124,12 +125,12 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
 				hex3hldr <= 4'b1111;
                 hex4hldr <= dementiaScore[3:0];
                 hex5hldr <= dementiaScore[7:4];
-				new <= 1'b0;
+				newSW <= 1'b0;
                 gameOver <= 1'b0;
                 continueToIdle <= 0;
 				//simulate running get tile by changing what goes into it -  current on same
-				//module getTile(SW, pastOn, tileCode, new, newOn);
-                if (negedge selectSW)
+				//module getTile(SW, pastOn, tileCode, newSW, newOn);
+                if (select1)
                     begin
                     nextCurrentOn1 <= currentOn;
                     
@@ -137,61 +138,61 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
                         begin
                         tileCode1 <= T_0;
                         nextCurrentOn1[0] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[1])
                         begin
                         tileCode1 <= T_1;
                         nextCurrentOn1[1] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[2])
                         begin
                         tileCode1 <= T_2;
                         nextCurrentOn1[2] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[3])
                         begin
                         tileCode1 <= T_3;
                         nextCurrentOn1[3] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[4])
                         begin
                         tileCode1 <= T_4;
                         nextCurrentOn1[4] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[5])
                         begin
                         tileCode1 <= T_5;
                         nextCurrentOn1[5] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[6])
                         begin
                         tileCode1 <= T_6;
                         nextCurrentOn1[6] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[7])
                         begin
                         tileCode1 <= T_7;
                         nextCurrentOn1[7] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[8])
                         begin
                         tileCode1 <= T_8;
                         nextCurrentOn1[8] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[9])
                         begin
                         tileCode1 <= T_9;
                         nextCurrentOn1[9] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
 				end //end of idle state
 
@@ -202,74 +203,74 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
 				hex2hldr <= 4'b1111;
                 hex4hldr <= dementiaScore[3:0];
                 hex5hldr <= dementiaScore[7:4];
-				new <= 1'b0;
+				newSW <= 1'b0;
             	gameOver <= 1'b0; 
                 continueToIdle <= 0;
 
 				//do the get tile again just in here
-				//module getTile(SW, pastOn, tileCode, new, newOn);
-                if (negedge selectSW)
+				//module getTile(SW, pastOn, tileCode, newSW, newOn);
+                if (select2)
                     begin
                     nextCurrentOn2 <= nextCurrentOn1;
                     if (SW[0])
                         begin
                         tileCode2 <= T_0;
                         nextCurrentOn2[0] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[1])
                         begin
                         tileCode2 <= T_1;
                         nextCurrentOn2[1] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[2])
                         begin
                         tileCode2 <= T_2;
                         nextCurrentOn2[2] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[3])
                         begin
                         tileCode2 <= T_3;
                         nextCurrentOn2[3] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[4])
                         begin
                         tileCode2 <= T_4;
                         nextCurrentOn2[4] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[5])
                         begin
                         tileCode2 <= T_5;
                         nextCurrentOn2[5] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[6])
                         begin
                         tileCode2 <= T_6;
                         nextCurrentOn2[6] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[7])
                         begin
                         tileCode2 <= T_7;
                         nextCurrentOn2[7] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[8])
                         begin
                         tileCode2 <= T_8;
                         nextCurrentOn2[8] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                     else if (SW[9])
                         begin
                         tileCode2 <= T_9;
                         nextCurrentOn2[9] <= 1'b1;
-                        new <= 1'b1;
+                        newSW <= 1'b1;
                         end
                 end
 				end //end of one tile state
@@ -281,11 +282,11 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
 				hex2hldr <= tileCode2[5:1];
                 hex4hldr <= dementiaScore[3:0];
                 hex5hldr <= dementiaScore[7:4];
-				new <= 1'b0;
+				newSW <= 1'b0;
             	gameOver <= 1'b0; 
                 continueToIdle <= 0;
 
-            	if (negedge selectSW)
+            	if (select1)
                     begin
                     dementiaScore <= dementiaScore + 1;
                     continueToGameOver <= 1;
@@ -322,14 +323,17 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, 
                     hex2hldr <= 4'b1111;
                     hex4hldr <= dementiaScore[3:0];
                     hex5hldr <= dementiaScore[7:4];
-                    new <= 1'b0;
+                    newSW <= 1'b0;
                     gameOver <= 1'b1; 
                     continueToIdle <= 0;
                 end
 			end //end of being in game
 		endcase //end of the game modes else
     end
+
+
 endmodule
+
 
 
 module clock_twosec_counter(Clock, clear, pulse);

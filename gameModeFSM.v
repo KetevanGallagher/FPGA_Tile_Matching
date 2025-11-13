@@ -1,4 +1,4 @@
-module gamemodeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingameOn);
+module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingameOn);
 	input userquit, keytobegin;
 	input CLOCK_50;
 	input gameOver;
