@@ -1,13 +1,10 @@
-module inGameFSM(CLOCK_50, inGameOn, userquit, SW, KEY, LEDhldr, HEX2hldr, HEX3hldr, HEX4hldr, HEX5hldr, gameOver);
-    input CLOCK_50, inGameOn, userquit;
+module inGameFSM(CLOCK_50, inGameOn, userquit, selectSW, SW, LEDhldr, HEX2hldr, HEX3hldr, HEX4hldr, HEX5hldr, gameOver);
+    input CLOCK_50, inGameOn, userquit, selectSW;
     input [9:0] SW;
-    input [3:0] KEY;
 
     output reg [9:0] LEDhldr;
     output reg [6:0] HEX2hldr, HEX3hldr, HEX4hldr, HEX5hldr;
     output reg gameOver, continueToIdle;
-    wire selectSW;
-    assign selectSW = ~KEY[2];
 
     reg twosec, new;
     reg dementiaScore[7:0];
