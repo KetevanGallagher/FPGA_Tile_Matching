@@ -1,4 +1,4 @@
-module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver);
+module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver);
     input CLOCK_50, inGameOn, userquit, select1, select2;
     input [9:0] SW;
 
@@ -6,7 +6,7 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
     output reg [6:0] hex2hldr, hex3hldr, hex4hldr, hex5hldr;
     output reg gameOver;
 
-    reg twosec, newSW, continueToGameOver, continueToIdle;
+    reg twosec, newSW, continueToIdle;
     reg [7:0] dementiaScore;
     reg [2:0] currentInGame, nextInGame; //what state of the game
 	 reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
@@ -96,6 +96,21 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
 
         endcase  
     end //end for changing in game
+	 
+	 
+	 //always block for updating in game mode
+	 always @ (posedge CLOCK_50)  
+	begin  
+	if (userquit == 1)
+		begin
+		currentInGame <= NotInGame;
+		end
+
+	else  
+		begin
+		currentInGame <= nextInGame;  
+	  	end
+	end //end of updating states
 
 
     always @ (posedge CLOCK_50)  
@@ -289,15 +304,15 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
             	if (select1)
                     begin
                     dementiaScore <= dementiaScore + 1;
-                    continueToGameOver <= 1;
+                    continueToIdle <= 1;
 					if (tileCode1[5:1] == tileCode2[5:1])
 						//if they match, update the currentOn, but if all are now on the
 						begin
 						currentOn <= nextCurrentOn2;
 						tileCode1 <= 11'b0;
 						tileCode2 <= 11'b0;
-						nextCurrentOn1 <= 26'b0;
-						nextCurrentOn2 <= 26'b0;
+						nextCurrentOn1 <= 10'b0;
+						nextCurrentOn2 <= 10'b0;
                         ledrhldr <= currentOn;
                         
                         // if all of the tiles have been matched
@@ -309,8 +324,8 @@ module inGameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
            				begin   
             				tileCode1 <= 11'b0;
                             tileCode2 <= 11'b0;
-                            nextCurrentOn1 <= 26'b0;
-                            nextCurrentOn2 <= 26'b0;
+                            nextCurrentOn1 <= 10'b0;
+                            nextCurrentOn2 <= 10'b0;
                             ledrhldr <= currentOn;
                         end
 					end  

@@ -2,8 +2,8 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	input userquit, keytobegin;
 	input CLOCK_50;
 	input gameOver;
-	output ingameOn;
-	output [6:0] hex0holder;
+	output reg ingameOn;
+	output reg [6:0] hex0holder;
 
 	reg [3:0] currentMode, nextMode; //what mode in
 
@@ -61,7 +61,7 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	if (userquit == 1) 
 		//SET ALL VARIABLES TO ZEROS HERE
 		begin
-		hex0hldr <= 4'b0000;
+		hex0holder <= 4'b0000;
 		ingameOn <= 1'b0;
 		end
 
@@ -70,20 +70,20 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 		if (currentMode == Gmenu)
 			begin
 			//any vga stuff
-			hex0hldr <= 4'b0000;
+			hex0holder <= 4'b0000;
 			ingameOn <= 1'b0;
 			end
 
 		else if (currentMode == Gingame)
 			begin
-			hex0hldr <= 4'b0001;
+			hex0holder <= 4'b0001;
 			ingameOn <= 1'b1;
 			end //end of being in game
 
 		else if (currentMode == Gendgame)
 			begin   
 			//any vga stuff
-			hex0hldr <= 4'b0010;
+			hex0holder <= 4'b0010;
 			ingameOn <= 1'b0;
 			end  
 

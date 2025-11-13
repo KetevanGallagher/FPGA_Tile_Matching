@@ -23,10 +23,10 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
 	//run the fsm modules
 	gameModeFSM whale1 (userquit, keytobegin, CLOCK_50, gameOver, hex0hldr, ingameOn); //any reason for the whales bestie..?
-	ingameFSM whale2 (CLOCK_50, ingameOn, userquit, selectSW, SW, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver);
+	ingameFSM whale2 (CLOCK_50, ingameOn, userquit, select1, select2, SW, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver);
 
 	//run the display mode for the hexes SOON TO BE CHANGED FOR VGA
-	FPGAdisplay whale3 (userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+	FPGAdisplay whale3 (userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX2, HEX3, HEX4, HEX5);
 	
 	//POTENTIALLY VGA STUFF HERE LATER
 
