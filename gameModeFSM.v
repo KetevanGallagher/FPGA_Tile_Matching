@@ -3,7 +3,7 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	input CLOCK_50;
 	input gameOver;
 	output reg ingameOn;
-	output reg [6:0] hex0holder;
+	output reg [3:0] hex0holder;
 
 	reg [3:0] currentMode, nextMode; //what mode in
 

@@ -3,14 +3,14 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
     input [9:0] SW;
 
     output reg [9:0] ledrhldr;
-    output reg [6:0] hex2hldr, hex3hldr, hex4hldr, hex5hldr;
+    output reg [4:0] hex2hldr, hex3hldr, hex4hldr, hex5hldr;
     output reg gameOver;
 
     reg twosec, newSW, continueToIdle;
     reg [7:0] dementiaScore;
     reg [2:0] currentInGame, nextInGame; //what state of the game
-	 reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
-	 reg [10:0] tileCode1, tileCode2;
+	reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
+	reg [10:0] tileCode1, tileCode2;
 
     localparam Idle = 3'b000, OneTile = 3'b001, TwoTile = 3'b011, OffGameOver = 3'b100, NotInGame = 3'b101;
     
@@ -209,6 +209,7 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
                         nextCurrentOn1[9] <= 1'b1;
                         newSW <= 1'b1;
                         end
+						end
 				end //end of idle state
 
 			OneTile:
@@ -292,12 +293,12 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
 
 			TwoTile:
 				begin
-				ledrhldr <= nextCurrentOn2;
+					ledrhldr <= nextCurrentOn2;
                 hex3hldr <= tileCode1[5:1];
-				hex2hldr <= tileCode2[5:1];
+					hex2hldr <= tileCode2[5:1];
                 hex4hldr <= dementiaScore[3:0];
                 hex5hldr <= dementiaScore[7:4];
-				newSW <= 1'b0;
+					newSW <= 1'b0;
             	gameOver <= 1'b0; 
                 continueToIdle <= 0;
 
@@ -305,28 +306,28 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
                     begin
                     dementiaScore <= dementiaScore + 1;
                     continueToIdle <= 1;
-					if (tileCode1[5:1] == tileCode2[5:1])
-						//if they match, update the currentOn, but if all are now on the
-						begin
-						currentOn <= nextCurrentOn2;
-						tileCode1 <= 11'b0;
-						tileCode2 <= 11'b0;
-						nextCurrentOn1 <= 10'b0;
-						nextCurrentOn2 <= 10'b0;
-                        ledrhldr <= currentOn;
-                        
-                        // if all of the tiles have been matched
-						if (currentOn == 10'b1111111111) gameOver <= 1'b1;
-						else gameOver <= 1'b0;
-						end
-                    // so if they don't match, do this  
-        			else  
-           				begin   
-            				tileCode1 <= 11'b0;
-                            tileCode2 <= 11'b0;
-                            nextCurrentOn1 <= 10'b0;
-                            nextCurrentOn2 <= 10'b0;
-                            ledrhldr <= currentOn;
+						if (tileCode1[5:1] == tileCode2[5:1])
+							//if they match, update the currentOn, but if all are now on the
+							begin
+							currentOn <= nextCurrentOn2;
+							tileCode1 <= 11'b0;
+							tileCode2 <= 11'b0;
+							nextCurrentOn1 <= 10'b0;
+							nextCurrentOn2 <= 10'b0;
+									ledrhldr <= currentOn;
+									
+									// if all of the tiles have been matched
+							if (currentOn == 10'b1111111111) gameOver <= 1'b1;
+							else gameOver <= 1'b0;
+							end
+							  // so if they don't match, do this  
+						else  
+								begin   
+									tileCode1 <= 11'b0;
+										 tileCode2 <= 11'b0;
+										 nextCurrentOn1 <= 10'b0;
+										 nextCurrentOn2 <= 10'b0;
+										 ledrhldr <= currentOn;
                         end
 					end  
 				end //end of two tile state	
@@ -342,8 +343,7 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ledrhldr, h
                     gameOver <= 1'b1; 
                     continueToIdle <= 0;
                 end
-			end //end of being in game
-		endcase //end of the game modes else
+		endcase //end of the game modes cases
     end
 
 
