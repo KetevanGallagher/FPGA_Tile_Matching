@@ -9,8 +9,8 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 	wire userquit, keytobegin, selectSW; //buttons for controlling modes: userquit also acts as a reset
 	assign userquit = ~KEY[0];
 	assign keytobegin = ~KEY[1];
-    assign select1 = ~KEY[2];
-    assign select2 = ~KEY[3];
+	assign select1 = ~KEY[2];
+	assign select2 = ~KEY[3];
 
 	wire ingameOn; //signal to show when 
 	wire gameOver; //signal for when the game ends
@@ -27,7 +27,6 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
 	//run the display mode for the hexes SOON TO BE CHANGED FOR VGA
 	FPGAdisplay whale3 (userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX2, HEX3, HEX4, HEX5);
-	
 	//POTENTIALLY VGA STUFF HERE LATER
 
 endmodule

@@ -6,6 +6,10 @@ vlib work;
 
 # compile the Verilog source code in the parent folder
 vlog tilegame.v
+vlog FPGAdisplay.v
+vlog gameModeFSM.v
+vlog inGameFSM.v
+
 # compile the Verilog code of the testbench
 vlog testbench.v
 # start the Simulator, including some libraries that may be needed
