@@ -45,7 +45,10 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 			end 
 
 		Gendgame:
-			nextMode <= Gendgame;   
+            if (keytobegin == 1)   
+				nextMode <= Gmenu;
+            else
+			    nextMode <= Gendgame;   
 
 		default: nextMode <= Gmenu;  
 	endcase
@@ -96,7 +99,7 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 			begin   
 			//any vga stuff
 			hex0holder <= 4'b0010;
-			ingameOn <= 1'b0;
+			ingameOn <= 1'b1;
 			end  
 
 		end //end of the game modes else
