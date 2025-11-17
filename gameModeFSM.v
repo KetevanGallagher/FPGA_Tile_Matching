@@ -7,7 +7,7 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	// Remove this if not debugging (exposed wires)
 	output [3:0] currentModeState;
 
-	reg [3:0] currentMode, nextMode; //what mode in
+	reg [3:0] currentMode, nextMode; //what mode it's in
 	// exposed for debugging
 	assign currentModeState = currentMode;
 
