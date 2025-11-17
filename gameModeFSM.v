@@ -1,15 +1,27 @@
-module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingameOn);
+module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingameOn, currentModeState);
 	input userquit, keytobegin;
 	input CLOCK_50;
 	input gameOver;
 	output reg ingameOn;
 	output reg [3:0] hex0holder;
+	// Remove this if not debugging (exposed wires)
+	output [3:0] currentModeState;
 
 	reg [3:0] currentMode, nextMode; //what mode in
+	// exposed for debugging
+	assign currentModeState = currentMode;
 
 	//signals here
 	//assign codes for the ingame fsm
 	localparam Gmenu = 4'b0000, Gingame = 4'b0011, Gendgame = 4'b0101, Gleaderboard = 4'b1001;
+	
+	//initialize states at startup
+	initial begin
+		currentMode <= Gmenu;
+		nextMode <= Gmenu;
+		ingameOn <= 1'b0;
+		hex0holder <= 4'b0000;
+	end
 
 //a bunch of always bloicks go here to control game modes and what happens in them
 //first one controls how the switch between states happens

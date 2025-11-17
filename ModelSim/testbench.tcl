@@ -1,6 +1,11 @@
         # stop any simulation that is currently running
         quit -sim
 
+        # remove the work library to ensure clean compilation
+        if {[file exists work]} {
+            file delete -force work
+        }
+
         # create the default "work" library
         vlib work;
 
@@ -16,4 +21,4 @@
         # show waveforms specified in wave.do
         do wave.do
         # advance the simulation the desired amount of time
-        run 800 ns
+        run 10000 ns
