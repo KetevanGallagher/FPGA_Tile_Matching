@@ -1,10 +1,10 @@
-module FPGAdisplay(userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX2, HEX3, HEX4, HEX5);
+module FPGAdisplay(userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 input userquit, ingameOn, gameOver;
 input [3:0] hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr;
 input [9:0] ledrhldr;
 
 output [9:0] LEDR;
-output [6:0] HEX0, HEX2, HEX3, HEX4, HEX5;
+output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
 //every hex light
 hex_7seg mode (hex0hldr, HEX0);
@@ -27,6 +27,8 @@ hex_7seg mode (hex0hldr, HEX0);
 //
 //	end
 
+
+hex_7seg game01(4'b1111, HEX1);
 hex_7seg game2 (hex2hldr, HEX2);
 hex_7seg game3 (hex3hldr, HEX3);
 hex_7seg game4 (hex4hldr, HEX4);
