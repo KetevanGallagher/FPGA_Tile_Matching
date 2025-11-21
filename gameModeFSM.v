@@ -1,7 +1,11 @@
-module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingameOn, currentModeState);
-	input userquit, keytobegin;
+module gameModeFSM (userquit, CLOCK_50, gameOver, ps2_key_data, ps2_key_pressed, hex0holder, ingameOn, currentModeState);
+	input userquit;
 	input CLOCK_50;
 	input gameOver;
+	// Internal Wires
+	input [7:0] ps2_key_data;
+	input ps2_key_pressed;
+
 	output reg ingameOn;
 	output reg [3:0] hex0holder;
 	// Remove this if not debugging (exposed wires)
@@ -30,7 +34,7 @@ module gameModeFSM (userquit, keytobegin, CLOCK_50, gameOver, hex0holder, ingame
 	case (currentMode)  
 		Gmenu:   
 			begin
-			if (keytobegin == 1)   
+			if (ps2_key_pressed == 1 && ps2_key_data == 8'h5a)   
 				nextMode <= Gingame;
 			else   
 				nextMode <= Gmenu;   
