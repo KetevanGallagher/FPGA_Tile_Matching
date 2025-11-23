@@ -1,6 +1,6 @@
-module gameModeFSM (userquit, CLOCK_50, gameOver, ps2_key_data, ps2_key_pressed, hex0holder, ingameOn, currentModeState);
+module gameModeFSM (userquit, clk, gameOver, ps2_key_data, ps2_key_pressed, hex0holder, ingameOn, currentModeState);
 	input userquit;
-	input CLOCK_50;
+	input clk;
 	input gameOver;
 	// Internal Wires
 	input [7:0] ps2_key_data;
@@ -61,7 +61,7 @@ module gameModeFSM (userquit, CLOCK_50, gameOver, ps2_key_data, ps2_key_pressed,
 
 
 //an always block that updates states as often as possible  
-	always @ (posedge CLOCK_50)  
+	always @ (posedge clk)  
 	begin  
 	if (userquit == 1)
 		begin
@@ -75,7 +75,7 @@ module gameModeFSM (userquit, CLOCK_50, gameOver, ps2_key_data, ps2_key_pressed,
 	end //end of updating states
 
 //an always block for what to do in each mode
-	always @ (posedge CLOCK_50)  
+	always @ (posedge clk)  
 	begin 
 	if (userquit == 1) 
 		//SET ALL VARIABLES TO ZEROS HERE
