@@ -1,5 +1,6 @@
-module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ps2_key_data, ps2_key_pressed, last_data_received, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver, currentInGameState);
-    input CLOCK_50, inGameOn, userquit, select1, select2;
+module ingameFSM(clk, inGameOn, userquit, select1, select2, SW, ps2_key_data, ps2_key_pressed, last_data_received, weA, weB, writeA, writeB, readA, readB, addrA, addrB, ledrhldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, gameOver, currentInGameState);
+    input clk, inGameOn, userquit, select1, select2;
+    input [7:0] readA, readB;
     input [9:0] SW;
 	//PS2 INPUT STUFF
 	// Internal Wires
@@ -11,6 +12,8 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ps2_key_dat
     output reg [9:0] ledrhldr;
     output reg [3:0] hex2hldr, hex3hldr, hex4hldr, hex5hldr;
     output reg gameOver;
+    output reg [3:0] addrA, addrB;
+    output reg weA, weB;
     //Remove this if not debugging (exposed wires)
     output [2:0] currentInGameState;
 
@@ -19,7 +22,8 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ps2_key_dat
 	//exposed for debugging
 	assign currentInGameState = currentInGame;
 	reg [9:0] currentOn, nextCurrentOn1, nextCurrentOn2;
-	reg [10:0] tileCode1, tileCode2;
+	reg [7:0] tileCode1, tileCode2;
+    reg [4:0] tile1Loc, tile2Loc;
 	
 	//edge detection for keys (active low, so detect falling edge)
 	reg select1Prev, select2Prev;
@@ -32,30 +36,30 @@ module ingameFSM(CLOCK_50, inGameOn, userquit, select1, select2, SW, ps2_key_dat
     //set up each tile, 10 FOR FPGA INTIAL
 	wire [10:0] T_0, T_1, T_2, T_3, T_4, T_5, T_6, T_7, T_8, T_9; 
 	//2-row, 2-col, 6-color, 1-flipped
-	assign T_0 = 11'b00000000010;
-	assign T_1 = 11'b00010000100;
-	assign T_2 = 11'b00100000110;
-	assign T_3 = 11'b00110001000;
-	assign T_4 = 11'b01000000100;
-	assign T_5 = 11'b01010001000;
-	assign T_6 = 11'b01100000110;
-	assign T_7 = 11'b01110000010;
-	assign T_8 = 11'b10000001010;
-	assign T_9 = 11'b10010001010;
-	assign T_10 = 11'b10100000010;
-	assign T_11 = 11'b10110000100;
-	assign T_12 = 11'b11000000110;
-	assign T_13 = 11'b11010001000;
-	assign T_14 = 11'b11100000100;
-	assign T_15 = 11'b11110001000;
+	assign T_0 = 8'b00111100;
+	assign T_1 = 8'b11001000;
+	assign T_2 = 8'b11100000;
+	assign T_3 = 8'b11100000;
+	assign T_4 = 8'b11010000;
+	assign T_5 = 8'b10001100;
+	assign T_6 = 8'b11110000;
+	assign T_7 = 8'b00001100;
+	assign T_8 = 8'b11001000;
+	assign T_9 = 8'b11010000;
+	assign T_10 = 8'b11110000;
+	assign T_11 = 8'b01110000;
+	assign T_12 = 8'b10001100;
+	assign T_13 = 8'b01110000;
+	assign T_14 = 8'b00111100;
+	assign T_15 = 8'b00001100;
 
 //clock stuff
 wire halfsec;
-halfseccounter  tick (CLOCK_50, userquit, halfsec);
+halfseccounter  tick (clk, userquit, halfsec);
 
 reg twosec;
 reg [26:0] counter2;
-//clock_twosec_counter tock (CLOCK_50, userquit, twosec);
+//clock_twosec_counter tock (clk, userquit, twosec);
 
 
 
@@ -120,7 +124,7 @@ reg [26:0] counter2;
         endcase  
     end
 	 
-	always @ (posedge CLOCK_50)  
+	always @ (posedge clk)  
 	begin  
 		if (userquit == 1)
 			currentInGame <= NotInGame;
@@ -149,7 +153,7 @@ reg [26:0] counter2;
 		twosec <= 1'b0;
 	end
 
-    always @ (posedge CLOCK_50)  
+    always @ (posedge clk)  
 	begin
         case (currentInGame)
             NotInGame:
@@ -162,11 +166,13 @@ reg [26:0] counter2;
                     nextCurrentOn1 <= 10'b0000000000;
                     nextCurrentOn2 <= 10'b0000000000;
                     dementiaScore <= 8'b00000000;
-                    tileCode1 <= 11'b00000000000;
-                    tileCode2 <= 11'b00000000000;
+                    tileCode1 <= 8'b00000000;
+                    tileCode2 <= 8'b00000000;
                     gameOver <= 1'b0;
                     ledrhldr <= 10'b0000000000;
-		twosec <= 1'b0;
+		            twosec <= 1'b0;
+                    weA <= 1'b0;
+                    weB <= 1'b0;
                 end
 
 		Idle:
@@ -176,7 +182,9 @@ reg [26:0] counter2;
 					hex4hldr <= dementiaScore[3:0];
 					hex5hldr <= dementiaScore[7:4];
 					gameOver <= 1'b0;
-		twosec <= 1'b0;
+		            twosec <= 1'b0;
+                    weB <= 1'b0;
+
 					
 					//show current switches on LEDs combined with matched tiles
 					ledrhldr <= currentOn | SW;
@@ -184,35 +192,67 @@ reg [26:0] counter2;
 					//if select1 pressed and a switch is set, select first tile
 		if (ps2_key_pressed)
 		begin
+            weA <= 1'b1;
+            
 			if (ps2_key_data == 8'h16 && !currentOn[0]) begin
 				tileCode1 <= T_0;
+                addrA <= 4'b0000;
+                tile1Loc <= 4'b0000;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000000001;
 			end else if (ps2_key_data == 8'h1e && !currentOn[1]) begin
 				tileCode1 <= T_1;
+                addrA <= 4'b0001;
+                tile1Loc <= 4'b0001;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000000010;
 			end else if (ps2_key_data == 8'h26 && !currentOn[2]) begin
 				tileCode1 <= T_2;
+                addrA <= 4'd2;
+                tile1Loc <= 4'd2;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000000100;
 			end else if (ps2_key_data == 8'h25 && !currentOn[3]) begin
 				tileCode1 <= T_3;
+                addrA <= 4'd3;
+                tile1Loc <= 4'd3;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000001000;
 			end else if (ps2_key_data == 8'h15 && !currentOn[4]) begin
 				tileCode1 <= T_4;
+                addrA <= 4'd4;
+                tile1Loc <= 4'd4;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000010000;
 			end else if (ps2_key_data == 8'h1d && !currentOn[5]) begin
 				tileCode1 <= T_5;
+                addrA <= 4'd5;
+                tile1Loc <= 4'd5;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0000100000;
 			end else if (ps2_key_data == 8'h24 && !currentOn[6]) begin
 				tileCode1 <= T_6;
+                addrA <= 4'd6;
+                tile1Loc <= 4'd6;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0001000000;
 			end else if (ps2_key_data == 8'h2d && !currentOn[7]) begin
 				tileCode1 <= T_7;
+                addrA <= 4'd7;
+                tile1Loc <= 4'd7;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0010000000;
 			end else if (ps2_key_data == 8'h1c && !currentOn[8]) begin
 				tileCode1 <= T_8;
+                addrA <= 4'd8;
+                tile1Loc <= 4'd8;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b0100000000;
 			end else if (ps2_key_data == 8'h1b && !currentOn[9]) begin
 				tileCode1 <= T_9;
+                addrA <= 4'd9;
+                tile1Loc <= 4'd9;
+                writeA <= readA | 8'b00000010;
 				nextCurrentOn1 <= currentOn | 10'b1000000000;
 			end
 		end
@@ -226,6 +266,8 @@ reg [26:0] counter2;
                     hex4hldr <= dementiaScore[3:0];
                     hex5hldr <= dementiaScore[7:4];
                     gameOver <= 1'b0; 
+                    weA <= 1'b0;
+                    weB <= 1'b0;
 		twosec <= 1'b0;
                 end
 
@@ -236,7 +278,8 @@ reg [26:0] counter2;
 					hex4hldr <= dementiaScore[3:0];
 					hex5hldr <= dementiaScore[7:4];
 					gameOver <= 1'b0;
-		twosec <= 1'b0;
+		            twosec <= 1'b0;
+                    weA <= 1'b0;
 					
 					//show first selected tile on LEDs
 					ledrhldr <= nextCurrentOn1;
@@ -244,35 +287,66 @@ reg [26:0] counter2;
 					//if select2 pressed and a switch is set, select second tile
 		if (ps2_key_pressed && (ps2_key_data != last_data_received))
 		begin
+            weB = 1'b1;
 			if (ps2_key_data == 8'h16 && T_0 != tileCode1 && !currentOn[0]) begin
 				tileCode2 <= T_0;
+                addrB <= 4'd0;
+                tile2Loc <= 4'd0;
+                writeB <= readb | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000000001;
 			end else if (ps2_key_data == 8'h1e && T_1 != tileCode1 && !currentOn[1]) begin
 				tileCode2 <= T_1;
+                addrB <= 4'd1;
+                tile2Loc <= 4'd1;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000000010;
 			end else if (ps2_key_data == 8'h26 && T_2 != tileCode1 && !currentOn[2]) begin
 				tileCode2 <= T_2;
+                addrB <= 4'd2;
+                tile2Loc <= 4'd2;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000000100;
 			end else if (ps2_key_data == 8'h25 && T_3 != tileCode1 && !currentOn[3]) begin
 				tileCode2 <= T_3;
+                addrB <= 4'd3;
+                tile2Loc <= 4'd3;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000001000;
 			end else if (ps2_key_data == 8'h15 && T_4 != tileCode1 && !currentOn[4]) begin
 				tileCode2 <= T_4;
+                addrB <= 4'd4;
+                tile2Loc <= 4'd4;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000010000;
 			end else if (ps2_key_data == 8'h1d && T_5 != tileCode1 && !currentOn[5]) begin
 				tileCode2 <= T_5;
+                addrB <= 4'd5;
+                tile2Loc <= 4'd5;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0000100000;
 			end else if (ps2_key_data == 8'h24 && T_6 != tileCode1 && !currentOn[6]) begin
 				tileCode2 <= T_6;
+                addrB <= 4'd6;
+                tile2Loc <= 4'd6;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0001000000;
 			end else if (ps2_key_data == 8'h2d && T_7 != tileCode1 && !currentOn[7]) begin
 				tileCode2 <= T_7;
+                addrB <= 4'd7;
+                tile2Loc <= 4'd7;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0010000000;
 			end else if (ps2_key_data == 8'h1c && T_8 != tileCode1 && !currentOn[8]) begin
 				tileCode2 <= T_8;
+                addrB <= 4'd8;
+                tile2Loc <= 4'd8;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b0100000000;
 			end else if (ps2_key_data == 8'h1b && T_9 != tileCode1 && !currentOn[9]) begin
 				tileCode2 <= T_9;
+                addrB <= 4'd9;
+                tile2Loc <= 4'd9;
+                writeB <= readB | 8'b00000010;
 				nextCurrentOn2 <= nextCurrentOn1 | 10'b1000000000;
 			end
 		end
@@ -311,13 +385,19 @@ reg [26:0] counter2;
 						//LEDs turn off
 						ledrhldr <= currentOn;
 						gameOver <= 1'b0;
+                        addrA <= tile1Loc;
+                        addrB <= tile2Loc;
+                        weA <= 1'b1;
+                        weB <= 1'b1;
+                        writeA <= readA | 8'b00000010;
+                        writeB <= readB | 8'b00000010;
 						end
 						
 					//clear LEDS, turn off hex displays
-					tileCode1 <= 11'b0;
-					tileCode2 <= 11'b0;
-					nextCurrentOn1 <= 10'b0;
-					nextCurrentOn2 <= 10'b0;
+					tileCode1 <= 8'b0;
+					tileCode2 <= 8'b0;
+                    nextCurrentOn1 <= 10'b0;
+                    nextCurrentOn2 <= 10'b0;
 
 					twosec <= ~twosec; 
 					end 
@@ -339,6 +419,8 @@ reg [26:0] counter2;
                     hex4hldr <= dementiaScore[3:0];
                     hex5hldr <= dementiaScore[7:4];
                     gameOver <= 1'b1; 
+                    weA <= 1'b0;
+                    weB <= 1'b0;
                 end
 
             default:
@@ -348,6 +430,8 @@ reg [26:0] counter2;
                     hex3hldr <= 4'b1111;
                     hex4hldr <= 4'b1111;
                     hex5hldr <= 4'b1111;
+                    weA <= 1'b0;
+                    weB <= 1'b0;
                 end
         endcase
     end

@@ -38,7 +38,7 @@ module TileGenerator(visible, clk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
             
             
             //row 2
-            if (10'd80 < xOrd & 10'd170 > xOrd & 10'd138 < yOrd & 10'd228 > yOrd)
+            else if (10'd80 < xOrd & 10'd170 > xOrd & 10'd138 < yOrd & 10'd228 > yOrd)
             begin
             tileFlag <= 1'b1;
             tileCounter <= 4'b0100;
@@ -60,7 +60,7 @@ module TileGenerator(visible, clk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
             end
             
             //row 3
-            if (10'd80 < xOrd & 10'd170 > xOrd & 10'd252 < yOrd & 10'd342 > yOrd)
+            else if (10'd80 < xOrd & 10'd170 > xOrd & 10'd252 < yOrd & 10'd342 > yOrd)
             begin
             tileFlag <= 1'b1;
             tileCounter <= 4'b1000;
@@ -82,7 +82,7 @@ module TileGenerator(visible, clk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
             end
             
             //row 4
-            if (10'd80 < xOrd & 10'd170 > xOrd & 10'd366 < yOrd & 10'd456 > yOrd)
+            else if (10'd80 < xOrd & 10'd170 > xOrd & 10'd366 < yOrd & 10'd456 > yOrd)
             begin
             tileFlag <= 1'b1;
             tileCounter <= 4'b1100;
