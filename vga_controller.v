@@ -5,7 +5,10 @@
  * a memory_address at which the pixel color is stored in Video memory. Once the pixel color is
  * read from video memory its brightness is first increased before it is forwarded to the VGA DAC.
  */
-module vga_controller(vga_clock, resetn, xCoord, yCoord, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, pixelClk);
+
+//CODE IS FROM GIVEN VGA DEMO WITH SOME MODIFICATIONS
+// writing to memory changed to x and y coords, output vga clock as pixel clock
+module vga_controller(vga_clock, resetn, xCoord, yCoord, VGA_HS, VGA_VS, visible, VGA_SYNC_N, pixelClk);
 
     // The VGA resolution, which can be set to "640x480", "320x240", and "160x120"
     parameter RESOLUTION = "640x480";
@@ -36,7 +39,7 @@ module vga_controller(vga_clock, resetn, xCoord, yCoord, VGA_HS, VGA_VS, VGA_BLA
     output [9:0] yCoord;
 	output reg VGA_HS;
 	output reg VGA_VS;
-	output reg VGA_BLANK_N;
+	output reg visible;
 	output wire VGA_SYNC_N, pixelClk;
 	
 	/*****************************************************************************/
@@ -113,7 +116,7 @@ module vga_controller(vga_clock, resetn, xCoord, yCoord, VGA_HS, VGA_VS, VGA_BLA
 		//- Add 1 cycle delay
 		VGA_HS <= VGA_HS1;
 		VGA_VS <= VGA_VS1;
-		VGA_BLANK_N <= VGA_BLANK1;	
+		visible <= VGA_BLANK1;	
 	end
 	
 	/* VGA sync should be 1 at all times. */

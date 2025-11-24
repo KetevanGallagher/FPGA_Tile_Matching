@@ -129,7 +129,7 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
     wire [9:0] resX, resY;
 	assign resX = 10'd640;
 	assign resY = 10'd480;
-    vgaDriver vga0(CLOCK_50, KEY[0], resX, resY, VGA_HS, VGA_VS, xOrd, yOrd, visible, pixelClk);
+    vga_controller vga0(CLOCK_50, KEY[0], xOrd, yOrd, VGA_HS, VGA_VS, visible, VGA_SYNC_N, pixelClk);
     ramModule u0(CLOCK_50, pixelClk, addrA, writeA, weA, readA, addrB, writeB, weB, readB, addrC, readC);
     
 
@@ -181,6 +181,6 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
     // blank_n is high during visible pixels, low during blanking
     assign VGA_BLANK_N = visible;
     
-    assign VGA_SYNC_N = 1'b0;
+    //assign VGA_SYNC_N = 1'b0;
 
 endmodule
