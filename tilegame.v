@@ -1,5 +1,5 @@
 module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VGA_HS, VGA_VS, VGA_R, VGA_G, VGA_B, VGA_BLANK_N, VGA_SYNC_N, VGA_CLK, PS2_CLK, PS2_DAT);
-	input [9:0] SW;
+   input [9:0] SW;
 	input [3:0] KEY;
 	input CLOCK_50;
 	
@@ -7,10 +7,11 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
 	output VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_CLK;
 	output [7:0] VGA_R, VGA_G, VGA_B;
 	
-	// internal vga signals from vgaDriverTest
-	wire [9:0] xOrd, yOrd;
-	wire visible, pixelClk; // 25mhz pixel clock from vgaDriver
-	wire [7:0] vgaR, vgaG, vgaB;
+	// internal vga signals from vga
+    wire [9:0] xOrd, yOrd;
+    wire visible, pixelClk; // 25mhz pixel clock from vga
+    wire [7:0] vgaR, vgaG, vgaB;
+	
 	
 	//for the RAM
 	wire [3:0] addrA, addrB, addrC;
@@ -21,11 +22,11 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
 	inout PS2_CLK;
 	inout PS2_DAT;
 
-	//hex displays
 	output [9:0] LEDR;
 	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
 	//STUFF FOR PS2 (TAKEN FROM DEMO)
+
 	// Internal Wires
 	wire [7:0] ps2_key_data;
 	wire ps2_key_pressed;
@@ -125,51 +126,59 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
 	
 	
 	//inital vga and ram stuff here
-	wire [9:0] resX, resY;
+    wire [9:0] resX, resY;
 	assign resX = 10'd640;
 	assign resY = 10'd480;
-	vga_controller vga0(CLOCK_50, KEY[0], xOrd, yOrd, VGA_HS, VGA_VS, visible, VGA_SYNC_N, pixelClk);
-	ramModule u0(CLOCK_50, pixelClk, addrA, writeA, weA, readA, addrB, writeB, weB, readB, addrC, readC);
-	
-	// in tilegame module (signals coming from CLOCK_50 domain)
-	reg arrowUp_s1, arrowUp_s2;
-	reg arrowDown_s1, arrowDown_s2;
-	reg arrowL_s1, arrowL_s2;
-	reg arrowR_s1, arrowR_s2;
-	reg select_s1, select_s2;
-		
-	always @(posedge pixelClk) begin
-		arrowUp_s1   <= arrowUp;
-		arrowUp_s2   <= arrowUp_s1;
-		arrowDown_s1 <= arrowDown;
-		arrowDown_s2 <= arrowDown_s1;
-		arrowL_s1    <= arrowL;
-		arrowL_s2    <= arrowL_s1;
-		arrowR_s1    <= arrowR;
-		arrowR_s2    <= arrowR_s1;
-		select_s1    <= select;
-		select_s2    <= select_s1;
-		end
+    vga_controller vga0(CLOCK_50, KEY[0], xOrd, yOrd, VGA_HS, VGA_VS, visible, VGA_SYNC_N, pixelClk);
+    ramModule u0(CLOCK_50, userquit, pixelClk, addrA, writeA, weA, readA, addrB, writeB, weB, readB, addrC, readC);
     
-	gameModeFSM whale1 (userquit, keytobegin, CLOCK_50, gameOver, hex0hldr, ingameOn); //any reason for the whales bestie..?
-	ingameFSM whale2 (CLOCK_50, ingameOn, userquit, arrowUp_s2, arrowDown_s2, arrowR_s2, arrowL_s2, select_s2, weA, weB, writeA, writeB, readA, readB, addrA, addrB, dementiaScore, gameOver, currentInGameState);
 
-	//run the display mode for the hexes SOON TO BE CHANGED FOR VGA
-	FPGAdisplay whale3 (userquit, ingameOn, gameOver, hex0hldr, dementiaScore, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+	
+	
+	
+
+	
+		// in tilegame module (signals coming from CLOCK_50 domain)
+		reg arrowUp_s1, arrowUp_s2;
+		reg arrowDown_s1, arrowDown_s2;
+		reg arrowL_s1, arrowL_s2;
+		reg arrowR_s1, arrowR_s2;
+		reg select_s1, select_s2;
+		
+
+		always @(posedge pixelClk) begin
+			 arrowUp_s1   <= arrowUp;
+			 arrowUp_s2   <= arrowUp_s1;
+			 arrowDown_s1 <= arrowDown;
+			 arrowDown_s2 <= arrowDown_s1;
+			 arrowL_s1    <= arrowL;
+			 arrowL_s2    <= arrowL_s1;
+			 arrowR_s1    <= arrowR;
+			 arrowR_s2    <= arrowR_s1;
+			 select_s1    <= select;
+			 select_s2    <= select_s1;
+		end
+			
+	
+
     
-	//POTENTIALLY VGA STUFF HERE LATER
-	TileGenerator u1(visible, pixelClk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
+    gameModeFSM whale1 (userquit, keytobegin, CLOCK_50, gameOver, hex0hldr, ingameOn); //any reason for the whales bestie..?
+    ingameFSM whale2 (CLOCK_50, ingameOn, userquit, arrowUp_s2, arrowDown_s2, arrowR_s2, arrowL_s2, select_s2, weA, weB, writeA, writeB, readA, readB, addrA, addrB, hex4hldr, hex5hldr, gameOver, currentInGameState);
+
+    //run the display mode for the hexes SOON TO BE CHANGED FOR VGA
+    FPGAdisplay whale3 (userquit, ingameOn, gameOver, hex0hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+
+    TileGenerator u1(visible, pixelClk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
     
-	assign VGA_R = vgaR;
-	assign VGA_G = vgaG;
-	assign VGA_B = vgaB;
+    assign VGA_R = vgaR;
+    assign VGA_G = vgaG;
+    assign VGA_B = vgaB;
     
-	// drive vga clock from the same pixel clock used inside vgaDriver
-	assign VGA_CLK = pixelClk;
+    // drive vga clock from the same pixel clock used inside vga
+    assign VGA_CLK = pixelClk;
     
-	// blank_n is high during visible pixels, low during blanking
-	assign VGA_BLANK_N = visible;
+    // blank_n is high during visible pixels, low during blanking
+    assign VGA_BLANK_N = visible;
     
-	//assign VGA_SYNC_N = 1'b0;
 
 endmodule

@@ -1,6 +1,7 @@
-module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, select, weA, weB, writeA, writeB, readA, readB, addrA, addrB, dementiaScore, gameOver, currentInGameState);
+module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, select, weA, weB, writeA, writeB, readA, readB, addrA, addrB, hex4hldr, hex5hldr, gameOver, currentInGameState);
     input clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, select;
     input [7:0] readA, readB;
+    output reg [3:0] hex4hldr, hex5hldr;
     output reg gameOver;
     output reg [3:0] addrA, addrB;
     //Remove this if not debugging (exposed wires)
@@ -11,7 +12,7 @@ module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, se
 	reg [1:0] selectWait2;
     reg [26:0] counter;
     output reg weA, weB;
-    output reg [7:0] dementiaScore;
+    reg [7:0] dementiaScore;
     reg [2:0] currentInGame, nextInGame;
 	//exposed for debugging
 	assign currentInGameState = currentInGame;
@@ -125,8 +126,8 @@ module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, se
       weA <= 1'b0;
       weB <= 1'b0;
 		currentMatched <= 4'b0000;
-		compareA <= 8'b00000000;
-		compareB <= 8'b00000000;
+		compareA <= 8'b00000000000;
+		compareB <= 8'b00000000000;
 		dementiaScore <= 8'b00000000;
       currentTile <= 4'b0000;
 		waitCycle <= 1'b0;
@@ -135,8 +136,8 @@ module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, se
 		selectWait <= 1'b0;
 		selectWait2 <= 2'b0;
         compareWait <= 1'b0;
-counter <= 27'd50000000;
-counterPulse <= 1'b0;
+        counter <= 27'd50000000;
+		counterPulse <= 1'b0;
 		
 	end
 
@@ -147,15 +148,15 @@ counterPulse <= 1'b0;
         case (currentInGame)
             NotInGame:
                 begin
-                    //hex4hldr <= 4'b1111;
-                    //hex5hldr <= 4'b1111;
+                    hex4hldr <= 4'b1111;
+                    hex5hldr <= 4'b1111;
                     gameOver <= 1'b0;
                     weA <= 1'b0;
                     weB <= 1'b0;
                     secFlag <= 1'b0;
                     currentMatched <= 4'b0000;
-                    compareA <= 8'b00000000;
-                    compareB <= 8'b00000000;
+                    compareA <= 8'b00000000000;
+                    compareB <= 8'b00000000000;
                     dementiaScore <= 8'b00000000;
                     currentTile <= 4'b0000;
                     waitCycle <= 1'b0;
@@ -164,14 +165,14 @@ counterPulse <= 1'b0;
                     selectWait <= 1'b0;
                     selectWait2 <= 2'b0;
                     compareWait <= 1'b0;
-counter <= 27'd50000000;
-counterPulse <= 1'b0;
+                    counter <= 27'd50000000;
+		            counterPulse <= 1'b0;
                 end
 
 			SelectState:
 				begin
-					//hex4hldr <= dementiaScore[3:0];
-					//hex5hldr <= dementiaScore[7:4];
+					hex4hldr <= dementiaScore[3:0];
+					hex5hldr <= dementiaScore[7:4];
 					gameOver <= 1'b0;
 					firstInFlip <= 1'b1;
 					
@@ -225,8 +226,8 @@ counterPulse <= 1'b0;
 
 			Flip:
 				begin
-					//hex4hldr <= dementiaScore[3:0];
-					//hex5hldr <= dementiaScore[7:4];
+					hex4hldr <= dementiaScore[3:0];
+					hex5hldr <= dementiaScore[7:4];
 					gameOver <= 1'b0;
 //                    weA <= 1'b0;
 //                    weB <= 1'b0;
@@ -293,8 +294,8 @@ counterPulse <= 1'b0;
 				begin
                 secFlag <= 1'b0;
                compareWait <= 1'b0;
-               //hex4hldr <= dementiaScore[3:0];
-						//hex5hldr <= dementiaScore[7:4];
+               hex4hldr <= dementiaScore[3:0];
+						hex5hldr <= dementiaScore[7:4];
 						gameOver <= 1'b0;
 						if (counter == 0)
 							begin
@@ -310,8 +311,8 @@ counterPulse <= 1'b0;
 
 			Compare:
 				begin
-					//hex4hldr <= dementiaScore[3:0];
-					//hex5hldr <= dementiaScore[7:4];
+					hex4hldr <= dementiaScore[3:0];
+					hex5hldr <= dementiaScore[7:4];
 					dementiaScore <= dementiaScore + 1;
                secFlag <= 1'b0;
                compareWait <= 1'b0;
@@ -338,8 +339,8 @@ counterPulse <= 1'b0;
 
             OffGameOver:
                 begin
-                    //hex4hldr <= dementiaScore[3:0];
-                    //hex5hldr <= dementiaScore[7:4];
+                    hex4hldr <= dementiaScore[3:0];
+                    hex5hldr <= dementiaScore[7:4];
                     gameOver <= 1'b1; 
                     weA <= 1'b0;
                     weB <= 1'b0;
@@ -347,36 +348,9 @@ counterPulse <= 1'b0;
 
             default:
                 begin
-                    //hex4hldr <= 4'b1111;
-                    //hex5hldr <= 4'b1111;
+                    hex4hldr <= 4'b1111;
+                    hex5hldr <= 4'b1111;
                 end
         endcase
     end
-endmodule
-
-module clock_twosec_counter(Clock, clear, pulse);
-	input Clock, clear;
-	reg [26:0]counter;
-	output reg pulse;
-	always@(posedge Clock)
-	begin
-		if(!clear)
-			begin
-			counter <= 27'd99999998;
-			pulse <= 1'b0;
-			end
-		else
-			begin
-				if (counter == 0)
-					begin
-					counter <= 27'd99999998;
-					pulse <= 1'b1;
-					end
-				else
-					begin
-					counter <= counter -1;
-					pulse <= 1'b0;
-					end
-			end
-	end
 endmodule

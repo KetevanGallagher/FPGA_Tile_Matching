@@ -1,40 +1,40 @@
 module TileGenerator(visible, clk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
-	input [9:0] xOrd, yOrd;
-	input [7:0] readC;
+    input [9:0] xOrd, yOrd;
+    input [7:0] readC;
 	input visible, clk;
-	output reg [3:0] addrC;
-	output reg [7:0] vgaR, vgaG, vgaB;
-	reg tileFlag;
-	reg [3:0] tileCounter;
+    output reg [3:0] addrC;
+    output reg [7:0] vgaR, vgaG, vgaB;
+    reg tileFlag;
+    reg [3:0] tileCounter;
 	 
 	 
-	always @(*)
+    always @(*)
 		begin
 				 
-		tileFlag <= 1'b0;
-		tileCounter <= 4'b0000;
+            tileFlag <= 1'b0;
+            tileCounter <= 4'b0000;
             
-		//row 1
-		if (10'd80 < xOrd & 10'd170 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
-			begin
-			tileFlag <= 1'b1;
-			tileCounter <= 4'b0000;
-			end
-		else if (10'd210 < xOrd & 10'd300 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
-			begin
-			tileFlag <= 1'b1;
-			tileCounter <= 4'b0001;
-			end
-		else if (10'd340 < xOrd & 10'd430 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
-			begin
-			tileFlag <= 1'b1;
-			tileCounter <= 4'b0010;
-			end
-		else if (10'd470 < xOrd & 10'd560 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
-			begin
-			tileFlag <= 1'b1;
-			tileCounter <= 4'b0011;
-		end
+            //row 1
+            if (10'd80 < xOrd & 10'd170 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
+            begin
+            tileFlag <= 1'b1;
+            tileCounter <= 4'b0000;
+            end
+            else if (10'd210 < xOrd & 10'd300 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
+            begin
+            tileFlag <= 1'b1;
+            tileCounter <= 4'b0001;
+            end
+            else if (10'd340 < xOrd & 10'd430 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
+            begin
+            tileFlag <= 1'b1;
+            tileCounter <= 4'b0010;
+            end
+            else if (10'd470 < xOrd & 10'd560 > xOrd & 10'd24 < yOrd & 10'd114 > yOrd)
+            begin
+            tileFlag <= 1'b1;
+            tileCounter <= 4'b0011;
+            end
             
             
             //row 2

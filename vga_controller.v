@@ -21,12 +21,12 @@ module vga_controller(vga_clock, resetn, xCoord, yCoord, VGA_HS, VGA_VS, visible
 	 * than are actually present on the screen. This is necessary to generate the vertical
      * and horizontal syncronization signals.  */
 	parameter C_VERT_NUM_PIXELS  = 11'd480;
-	parameter C_VERT_SYNC_START  = 11'd490; //vresolution plus vfrontporch
+	parameter C_VERT_SYNC_START  = 11'd490;
 	parameter C_VERT_SYNC_END    = 11'd492; //vsyncstart plus vpulse; 
 	parameter C_VERT_TOTAL_COUNT = 11'd525; // vsync end plus vbackporch
 
 	parameter C_HORZ_NUM_PIXELS  = 11'd640;
-	parameter C_HORZ_SYNC_START  = 11'd656; // hresolution plus hfrontporch
+	parameter C_HORZ_SYNC_START  = 11'd656;
 	parameter C_HORZ_SYNC_END    = 11'd752; //hsyncstart plus hpulse; 
 	parameter C_HORZ_TOTAL_COUNT = 11'd800; // h sync end plus hbackporch
 		
