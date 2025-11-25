@@ -158,6 +158,7 @@ module tilegame (SW, KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, VG
 			 select_s1    <= select;
 			 select_s2    <= select_s1;
 		end
+	
 			
 	
 

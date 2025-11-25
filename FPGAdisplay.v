@@ -39,38 +39,39 @@ module decimal_conversion(bi4, bi5, deci4, deci5);
 	always @(*) 
 	begin
 	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0000; end //0
-	if (bi5 == 4'b0000 && bi4 == 4'b0001) begin deci5 = 4'b0000; deci4 = 4'b0001; end //1
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0010; end //2
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0011; end //3
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0100; end //4
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0101; end //5
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0110; end //6
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0111; end //7
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b1000; end //8
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b1001; end //9
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0000; end //10
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0001; end //11
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0010; end //12
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0011; end //13
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0100; end //14
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0101; end //15
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0110; end //16
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0111; end //17
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b1000; end //18
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b1001; end //19
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0000; end //20
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0001; end //21
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0010; end //22
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0011; end //23
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0100; end //24
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0101; end //25
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0110; end //26
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0111; end //27
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b1000; end //28
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b1001; end //29
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0000; end //30
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0001; end //31
-	if (bi5 == 4'b0000 && bi4 == 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0010; end //32
+	else if (bi5 == 4'b0000 && bi4 == 4'b0001) begin deci5 = 4'b0000; deci4 = 4'b0001; end //1
+	else if (bi5 == 4'b0000 && bi4 == 4'b0010) begin deci5 = 4'b0000; deci4 = 4'b0010; end //2
+	else if (bi5 == 4'b0000 && bi4 == 4'b0011) begin deci5 = 4'b0000; deci4 = 4'b0011; end //3
+	else if (bi5 == 4'b0000 && bi4 == 4'b0100) begin deci5 = 4'b0000; deci4 = 4'b0100; end //4
+	else if (bi5 == 4'b0000 && bi4 == 4'b0101) begin deci5 = 4'b0000; deci4 = 4'b0101; end //5
+	else if (bi5 == 4'b0000 && bi4 == 4'b0110) begin deci5 = 4'b0000; deci4 = 4'b0110; end //6
+	else if (bi5 == 4'b0000 && bi4 == 4'b0111) begin deci5 = 4'b0000; deci4 = 4'b0111; end //7
+	else if (bi5 == 4'b0000 && bi4 == 4'b1000) begin deci5 = 4'b0000; deci4 = 4'b1000; end //8
+	else if (bi5 == 4'b0000 && bi4 == 4'b1001) begin deci5 = 4'b0000; deci4 = 4'b1001; end //9
+	else if (bi5 == 4'b0000 && bi4 == 4'b1010) begin deci5 = 4'b0001; deci4 = 4'b0000; end //10
+	else if (bi5 == 4'b0000 && bi4 == 4'b1011) begin deci5 = 4'b0001; deci4 = 4'b0001; end //11
+	else if (bi5 == 4'b0000 && bi4 == 4'b1100) begin deci5 = 4'b0001; deci4 = 4'b0010; end //12
+	else if (bi5 == 4'b0000 && bi4 == 4'b1101) begin deci5 = 4'b0001; deci4 = 4'b0011; end //13
+	else if (bi5 == 4'b0000 && bi4 == 4'b1110) begin deci5 = 4'b0001; deci4 = 4'b0100; end //14
+	else if (bi5 == 4'b0000 && bi4 == 4'b1111) begin deci5 = 4'b0001; deci4 = 4'b0101; end //15
+	else if (bi5 == 4'b0001 && bi4 == 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0110; end //16
+	else if (bi5 == 4'b0001 && bi4 == 4'b0001) begin deci5 = 4'b0001; deci4 = 4'b0111; end //17
+	else if (bi5 == 4'b0001 && bi4 == 4'b0010) begin deci5 = 4'b0001; deci4 = 4'b1000; end //18
+	else if (bi5 == 4'b0001 && bi4 == 4'b0011) begin deci5 = 4'b0001; deci4 = 4'b1001; end //19
+	else if (bi5 == 4'b0001 && bi4 == 4'b0100) begin deci5 = 4'b0010; deci4 = 4'b0000; end //20
+	else if (bi5 == 4'b0001 && bi4 == 4'b0101) begin deci5 = 4'b0010; deci4 = 4'b0001; end //21
+	else if (bi5 == 4'b0001 && bi4 == 4'b0110) begin deci5 = 4'b0010; deci4 = 4'b0010; end //22
+	else if (bi5 == 4'b0001 && bi4 == 4'b0111) begin deci5 = 4'b0010; deci4 = 4'b0011; end //23
+	else if (bi5 == 4'b0001 && bi4 == 4'b1000) begin deci5 = 4'b0010; deci4 = 4'b0100; end //24
+	else if (bi5 == 4'b0001 && bi4 == 4'b1001) begin deci5 = 4'b0010; deci4 = 4'b0101; end //25
+	else if (bi5 == 4'b0001 && bi4 == 4'b1010) begin deci5 = 4'b0010; deci4 = 4'b0110; end //26
+	else if (bi5 == 4'b0001 && bi4 == 4'b1011) begin deci5 = 4'b0010; deci4 = 4'b0111; end //27
+	else if (bi5 == 4'b0001 && bi4 == 4'b1100) begin deci5 = 4'b0010; deci4 = 4'b1000; end //28
+	else if (bi5 == 4'b0001 && bi4 == 4'b1101) begin deci5 = 4'b0010; deci4 = 4'b1001; end //29
+	else if (bi5 == 4'b0001 && bi4 == 4'b1110) begin deci5 = 4'b0011; deci4 = 4'b0000; end //30
+	else if (bi5 == 4'b0001 && bi4 == 4'b1111) begin deci5 = 4'b0011; deci4 = 4'b0001; end //31
+	else if (bi5 == 4'b0010 && bi4 == 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0010; end //32
+	else if (bi5 == 4'b1111 && bi4 == 4'b1111) begin deci5 = 4'b1111; deci4 = 4'b1111; end //OFF
     end
 endmodule
 

@@ -1,3 +1,5 @@
+//module is taken from the PS2 demo on Quercus
+
 /*****************************************************************************
  *                                                                           *
  * Module:       Altera_UP_PS2_Data_In                                       *
