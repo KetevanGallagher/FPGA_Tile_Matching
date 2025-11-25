@@ -1,35 +1,21 @@
-module FPGAdisplay(userquit, ingameOn, gameOver, hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+module FPGAdisplay(userquit, ingameOn, gameOver, hex0hldr, hex4hldr, hex5hldr, ledrhldr, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 input userquit, ingameOn, gameOver;
-input [3:0] hex0hldr, hex2hldr, hex3hldr, hex4hldr, hex5hldr;
+input [3:0] hex0hldr;
+input [3:0] hex4hldr, hex5hldr;
 input [9:0] ledrhldr;
 
 output [9:0] LEDR;
 output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
+//run the module for converting the score into decimal
+
 //every hex light
 hex_7seg moderun (hex0hldr, HEX0);
+
+//these are off
 hex_7seg turnOff1 (4'b1111, HEX1);
 hex_7seg turnOff2 (4'b1111, HEX2);
 hex_7seg turnOff3 (4'b1111, HEX3);
-
-
-//always @ (*)
-//    begin
-//    if (ingame == 0 && gameOver == 0)
-//        begin
-//        ledrhldr <= 10'b0;
-//        hex2hldr <= 4'b1111;
-//        hex3hldr <= 4'b1111;
-//        hex4hldr <= 4'b1111;
-//        hex5hldr <= 4'b1111;
-//        end
-//    else if (ingame == 0 && gameOver == 1)
-//        begin
-//        hex2hldr <= 4'b1111;
-//        hex3hldr <= 4'b1111;
-//        end
-//
-//    end
 
 
 hex_7seg game4 (hex4hldr, HEX4);
@@ -41,6 +27,48 @@ assign LEDR = ledrhldr;
 
 endmodule
 
+//module for changing the dementia score into proper decimal
+module decimal_conversion(bi4, bi5 deci);
+	input [3:0] bi4, bi5;
+	output reg [7:0] deci4, deci5;
+
+	always @(*) 
+	begin
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0000; end //0
+	if (bi5 = 4'b0000 && bi4 = 4'b0001) begin deci5 = 4'b0000; deci4 = 4'b0001; end //1
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0010; end //2
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0011; end //3
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0100; end //4
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0101; end //5
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0110; end //6
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b0111; end //7
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b1000; end //8
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0000; deci4 = 4'b1001; end //9
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0000; end //10
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0001; end //11
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0010; end //12
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0011; end //13
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0100; end //14
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0101; end //15
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0110; end //16
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b0111; end //17
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b1000; end //18
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0001; deci4 = 4'b1001; end //19
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0000; end //20
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0001; end //21
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0010; end //22
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0011; end //23
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0100; end //24
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0101; end //25
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0110; end //26
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b0111; end //27
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b1000; end //28
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0010; deci4 = 4'b1001; end //29
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0000; end //30
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0001; end //31
+	if (bi5 = 4'b0000 && bi4 = 4'b0000) begin deci5 = 4'b0011; deci4 = 4'b0010; end //32
+    end
+endmodule
 
 //note: consider changing the hexdecoder to work with a 5 bit number so we can use f in the counter
 module hex_7seg(C, h);
