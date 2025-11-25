@@ -354,3 +354,30 @@ module ingameFSM(clk, inGameOn, userquit, arrowUp, arrowDown, arrowR, arrowL, se
         endcase
     end
 endmodule
+
+module clock_twosec_counter(Clock, clear, pulse);
+	input Clock, clear;
+	reg [26:0]counter;
+	output reg pulse;
+	always@(posedge Clock)
+	begin
+		if(!clear)
+			begin
+			counter <= 27'd99999998;
+			pulse <= 1'b0;
+			end
+		else
+			begin
+				if (counter == 0)
+					begin
+					counter <= 27'd99999998;
+					pulse <= 1'b1;
+					end
+				else
+					begin
+					counter <= counter -1;
+					pulse <= 1'b0;
+					end
+			end
+	end
+endmodule

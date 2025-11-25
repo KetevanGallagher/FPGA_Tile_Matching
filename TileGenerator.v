@@ -1,11 +1,11 @@
 module TileGenerator(visible, clk, xOrd, yOrd, addrC, readC, vgaR, vgaG, vgaB);
     input [9:0] xOrd, yOrd;
     input [7:0] readC;
-	input visible, clk;
+	 input visible, clk;
     output reg [3:0] addrC;
     output reg [7:0] vgaR, vgaG, vgaB;
-    reg tileFlag;
-    reg [3:0] tileCounter;
+	 reg tileFlag;
+	 reg [3:0] tileCounter;
 	 
 	 
     always @(*)
